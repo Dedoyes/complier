@@ -1,14 +1,15 @@
-first[_s] = {( () (protable); 0 1 2 3 4 5 6 7 8 9 = A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b bool c cha
-r d double e expr; f for g h i if int j k l m main n o p q r return s string struct t u v var; var[expr] void w while x
-y z { }; }
+first[_s] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 = == A B C D E F G H I J K L M N O P Q R S T U V W X Y
+Z ] ^ _ a b bool c char d double e expr; f floatnum for g h i if int j k l m main n o p q r return s string struct t u v
+ var; var[ void w while x xor y z { | || }; }
 first[_stringtype] = {' empty }
 first[chartype] = {' }
-first[defstmt] = {( 0 1 2 3 4 5 6 7 8 9 = A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b bool c char d double
- e empty f g h i int j k l m n o p q r s string struct t u v var; var[expr] void w x y z { }; }
+first[defstmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 = == A B C D E F G H I J K L M N O P Q R S T U V W
+ X Y Z ] ^ _ a b bool c char d double e empty f floatnum g h i int j k l m n o p q r s string struct t u v var; var[ voi
+d w x xor y z { | || }; }
 first[defstmt_pos] = {0 1 2 3 4 5 6 7 8 9 bool char double empty int string var; void }
 first[elifstmt] = {else empty }
-first[expr] = {! != " % & && ' (expr) * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W
- X Y Z ^ _ a b c d e empty f floatnum g h i j k l m n o p q r s t u v var[expr] w x xor y z | || }
+first[expr] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W X Y
+Z ] ^ _ a b c d e empty f floatnum g h i j k l m n o p q r s t u v var[ w x xor y z | || }
 first[float] = {0 1 2 3 4 5 6 7 8 9 }
 first[integrate] = {0 1 2 3 4 5 6 7 8 9 }
 first[letter] = {A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b c d e empty f g h i j k l m n o p q r s t u v
@@ -16,18 +17,19 @@ first[letter] = {A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b c d e
 first[lopt1] = {! ++ -- }
 first[number] = {0 1 2 3 4 5 6 7 8 9 }
 first[opt2] = {!= % & && * + - / == ^ empty xor | || }
-first[prostmt] = {( (protable); 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b c d e empt
-y expr; f for g h i if j k l m n o p q r return s t u v var[expr] w while x y z }
-first[protable] = {! != " % & && ' (expr) * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U
- V W X Y Z ^ _ a b c d e empty expr, f floatnum g h i j k l m n o p q r s t u v var, var[expr] w x xor y z | || }
+first[prostmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W X
+ Y Z ] ^ _ a b c d e empty expr; f floatnum for g h i if j k l m n o p q r return s t u v var[ w while x xor y z | || }
+first[protable] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W
+X Y Z ] ^ _ a b c d e empty expr, f floatnum g h i j k l m n o p q r s t u v var, var[ w x xor y z | || }
 first[ropt1] = {++ -- }
 first[spcletter] = {! # % & ' ( ) * + , - . / : ; < = > ? @ [ ] ^ empty { | } }
-first[stmt] = {( (protable); 0 1 2 3 4 5 6 7 8 9 = A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b bool c char
- d double e empty expr; f for g h i if int j k l m n o p q r return s string struct t u v var; var[expr] void w while x
-y z { }; }
+first[stmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 = == A B C D E F G H I J K L M N O P Q R S T U V W X
+Y Z ] ^ _ a b bool c char d double e empty expr; f floatnum for g h i if int j k l m n o p q r return s string struct t
+u v var; var[ void w while x xor y z { | || }; }
 first[stringtype] = {" }
-first[table] = {0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b bool c char d double e emp
-ty f g h i int j k l m n o p q r s string t u v var, var[expr] void w x y z }
+first[table] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W X Y
+ Z ] ^ _ a b bool c char d double e empty f floatnum g h i int j k l m n o p q r s string t u v var, var[ void w x xor y
+ z | || }
 first[type] = {0 1 2 3 4 5 6 7 8 9 bool char double empty int string void }
-first[var] = {0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ a b c d e empty f g h i j k l m
-n o p q r s t u v var[expr] w x y z }
+first[var] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 == A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+ ] ^ _ a b c d e empty f floatnum g h i j k l m n o p q r s t u v var[ w x xor y z | || }
