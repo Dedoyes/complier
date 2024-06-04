@@ -1,0 +1,34 @@
+s -> stmt type main () { stmt }                                          // s : 初始文法符
+type -> bool | char | int | float | double | string | void               // type : 类型符
+stmt -> defstmt stmt | prostmt stmt | empty                              // stmt : 语句
+defstmt -> type var; | type var = expr;                                  // defstmt : 定义语句
+defstmt -> type var ( table ) { stmt }
+defstmt_pos -> type var; defstmt_pos | type var;                         // defstmt_pos : 定义语句正闭包
+defstmt -> struct type { defstmt_pos };
+prostmt -> for ( stmt; expr; stmt ) { stmt } stmt                        // prostmt : 过程语句
+prostmt -> if ( expr ) { stmt } stmt elifstmt
+elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }   // elifstmt : 选择语句
+prostmt -> while ( expr ) { stmt }
+prostmt -> empty | return expr;
+prostmt -> var (protable);
+protable -> expr | var | expr, protable | var, protable | empty          // protable : 过程语句中的函数表
+table -> empty | type var, table | type var                              // table : 函数表
+expr -> (expr) | expr opt2 expr | integrate | floatnum | lopt1 expr      // expr : 表达式
+        | expr ropt1 | var | chartype | stringtype
+opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | !=          // opt2 : 二元运算符
+integrate -> number integrate | number                                   // integrate : 整数
+number -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9                          // number : 单个数字
+float -> integrate | integrate e integrate | integrate . integrate       // float : 浮点数
+var -> letter var | letter | var integrate | var[expr]                   // var : 变量
+letter -> a | b | c | ... | z | A | B | C | ... | Z | _                  // letter : 字母
+lopt1 -> ++ | ! | --                                                     // lopt1 : 左单元运算符
+ropt1 -> ++ | --                                                         // ropt2 : 右单元运算符
+spcletter -> + | - | / | * | ! | @ | # | % | ^ | & | ( | ) | [ | ] |     // spcletter : 特殊字符
+          | | { | } | , | . | ; | : | ?
+          | < | > | = | empty | '
+chartype -> 'spcletter' | 'number' | 'letter'                            // chartype : 所有字符
+_stringtype -> chartype _stringtype | empty                              // _stringtype : 字符串临时型
+stringtype -> "_stringtype"                                              // stringtype : 字符串确定型
+
+
+
