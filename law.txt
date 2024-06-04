@@ -1,4 +1,4 @@
-s -> stmt type main () { stmt }                                          // s : 初始文法符
+_s -> stmt type main () { stmt }                                          // s : 初始文法符
 type -> bool | char | int | float | double | string | void               // type : 类型符
 stmt -> defstmt stmt | prostmt stmt | empty                              // stmt : 语句
 defstmt -> type var; | type var = expr;                                  // defstmt : 定义语句
