@@ -1,5 +1,5 @@
 
-s -> stmt type main () { stmt }
+_s -> stmt type main () { stmt }
 type -> bool | char | int | float | double | string | void
 stmt -> defstmt stmt | prostmt stmt | empty
 defstmt -> type var; | type var = expr;
