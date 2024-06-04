@@ -1,5 +1,5 @@
 
-_s -> stmt type main () { stmt }
+_s -> stmt type main ( ) { stmt }
 type -> bool | char | int | float | double | string | void
 stmt -> defstmt stmt | prostmt stmt | empty
 defstmt -> type var; | type var = expr;
@@ -11,15 +11,15 @@ prostmt -> if ( expr ) { stmt } stmt elifstmt
 elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr;
-prostmt -> var (protable);
+prostmt -> var ( protable );
 protable -> expr | var | expr, protable | var, protable | empty
 table -> empty | type var, table | type var
-expr -> (expr) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr ropt1 | var | chartype | stringtype
+expr -> ( expr ) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr ropt1 | var | chartype | stringtype
 opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | !=
 integrate -> number integrate | number
 number -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 float -> integrate | integrate e integrate | integrate . integrate
-var -> letter var | letter | var integrate | var[expr]
+var -> letter var | letter | var integrate | var[ expr ]
 letter -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | _
 lopt1 -> ++ | ! | --
 ropt1 -> ++ | --
