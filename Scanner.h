@@ -117,6 +117,12 @@ inline void initVnVt () {                               // 初始化 Vn, Vt
             Vt.insert (x);
         }
     }
+    for (auto x : Vn) {
+        auto it = Vt.lower_bound (x);
+        if (*it == x) {
+            Vt.erase (x);
+        }
+    }
 }
 
 inline void printVn () {                        // 输出 Vn
@@ -133,8 +139,49 @@ inline void printVt () {                        // 输出 Vt
     }
 }
 
-void getFirst () {
-    
+inline void printFirst () {
+    for (auto x : Vn) {
+        cout << "first[" << x << "] = {";
+        for (auto y : first[x]) {
+            cout << y << " ";
+        }
+        cout << "}" << endl;
+    }
+}
+
+void getFirst () {                             // 求 first 集合
+    for (auto x : Vt) {
+        first[x].insert (x);
+    }
+    int siz = Vn.size ();
+    for (int i = 1; i <= siz; i++) {
+        for (int j = 0; j < law.st.size (); j++) {
+            string tempVn = law.st[j].Vn;
+            vector <string> tempVt;
+            for (auto x : law.st[j].Vt) {
+                tempVt.push_back (x);
+            }
+            bool flag = true;
+            for (auto x : tempVt) {
+                auto it = first[x].lower_bound ("empty");
+                if (it != first[x].end ()) {
+                    for (auto y : first[x]) {
+                        if (y == "empty") continue;
+                        first[tempVn].insert (y);
+                    }
+                } else {
+                    for (auto y : first[x]) {
+                        first[tempVn].insert (y);
+                    }
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                first[tempVn].insert ("empty");
+            }
+        }
+    }
 }
 
 #endif
