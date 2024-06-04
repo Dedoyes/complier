@@ -26,9 +26,9 @@ ropt1 -> ++ | --                                                         // ropt
 spcletter -> + | - | / | * | ! | @ | # | % | ^ | & | ( | ) | [ | ] |     // spcletter : 特殊字符
           | | { | } | , | . | ; | : | ?
           | < | > | = | empty | '
-chartype -> 'spcletter' | 'number' | 'letter'                            // chartype : 所有字符
+chartype -> ' spcletter ' | ' number ' | ' letter '                            // chartype : 所有字符
 _stringtype -> chartype _stringtype | empty                              // _stringtype : 字符串临时型
-stringtype -> "_stringtype"                                              // stringtype : 字符串确定型
+stringtype -> " _stringtype "                                              // stringtype : 字符串确定型
 
 
 
