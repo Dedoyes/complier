@@ -5,9 +5,9 @@
 
 using namespace std;
 
-struct stmt {
-    string Vn;
-    vector <string> Vt;
+struct stmt {                                     // 派生语句
+    string Vn;                                    // 终结符
+    vector <string> Vt;                           // 非终结符
     stmt () {}
     stmt (string _Vn, vector <string> &_Vt) {
         Vn = _Vn;
@@ -36,8 +36,8 @@ struct stmt {
     }
 };
 
-struct Law {
-    vector <stmt> st;
+struct Law {                                    // 文法
+    vector <stmt> st;                           // 文法语句表
     Law () {}
     Law (vector <stmt> _st) {
         for (auto x : _st) {
