@@ -12,8 +12,8 @@ elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr;
 prostmt -> var ( protable );
-protable -> expr | var | expr, protable | var, protable | empty
-table -> empty | type var, table | type var
+protable -> expr | var | expr , protable | var , protable | empty
+table -> empty | type var , table | type var
 expr -> ( expr ) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr ropt1 | var | chartype | stringtype
 opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | !=
 integrate -> number integrate | number
