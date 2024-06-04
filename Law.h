@@ -27,6 +27,18 @@ struct stmt {                                     // 派生语句
         }
         return thisStr < stStr;
     }
+    bool operator == (const stmt &st) const {
+        if (Vn != st.Vn)
+            return false;
+        string thisStr, stStr;
+        for (auto s : Vt) {
+            thisStr += s;
+        }
+        for (auto s : st.Vt) {
+            stStr += s;
+        }
+        return thisStr == stStr;
+    }
     inline void print () {
         cout << Vn << " -> ";
         for (auto x : Vt) {
