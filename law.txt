@@ -19,7 +19,7 @@ opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | !=          // opt2
 integrate -> number integrate | number                                   // integrate : 整数
 number -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9                          // number : 单个数字
 float -> integrate | integrate e integrate | integrate . integrate       // float : 浮点数
-var -> letter var | letter | var integrate | var[ expr ]                 // var : 变量
+var -> letter var | letter | var integrate | var [ expr ]                 // var : 变量
 letter -> a | b | c | ... | z | A | B | C | ... | Z | _                  // letter : 字母
 lopt1 -> ++ | ! | -- | - | +                                             // lopt1 : 左单元运算符
 ropt1 -> ++ | --                                                         // ropt2 : 右单元运算符
