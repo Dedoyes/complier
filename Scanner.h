@@ -16,13 +16,13 @@ map <string, set <string> > first, follow;    // first, follow 集合
 set <char> word;                              // 字集合， U - {$}
 Law law;                                      // 文法表
 string programe, lawstr;                      // 源程序, 文法字符串
-vector <string> Vt, Vn;                       // 终结符集合Vt, 非终结符集合 Vn
+set <string> Vt, Vn;                          // 终结符集合Vt, 非终结符集合 Vn
 const char* pathLaw =                         // 本地目录名称
     "C:\\Users\\lumia\\CLionProjects\\cf1969\\Team_complier\\Law.in";
 const char* pathPrograme =
     "C:\\Users\\lumia\\CLionProjects\\cf1969\\Team_complier\\Program.in";
 
-inline void initLaw () {
+inline void initLaw () {                      // 用 law.in 初始化文法
     freopen (pathLaw, "r", stdin);
     string temp;
     while (getline (cin, temp)) {
@@ -94,6 +94,47 @@ inline void initLaw () {
     tempVt[0] = "|";
     law.st.push_back (stmt (tempVn, tempVt));
     sort (law.st.begin (), law.st.end ());
+}
+
+inline void initword () {                               // 初始化字表
+    for (char c = '0'; c <= '9'; c++)
+        word.insert (c);
+    for (char c = 'a'; c <= 'z'; c++)
+        word.insert (c);
+    for (char c = 'A'; c <= 'Z'; c++)
+        word.insert (c);
+    string spcletter = "!@#%^&*()_+=[]{}|;',<>./?\"";
+    for (auto c : spcletter) {
+        word.insert (c);
+    }
+}
+
+inline void initVnVt () {                               // 初始化 Vn, Vt
+    for (auto stmt : law.st) {
+        string s = stmt.Vn;
+        Vn.insert (s);
+        for (auto x : stmt.Vt) {
+            Vt.insert (x);
+        }
+    }
+}
+
+inline void printVn () {                        // 输出 Vn
+    cout << "Vn : " << endl;
+    for (auto x : Vn) {
+        cout << x << endl;
+    }
+}
+
+inline void printVt () {                        // 输出 Vt
+    cout << "Vt : " << endl;
+    for (auto x : Vt) {
+        cout << x << endl;
+    }
+}
+
+void getFirst () {
+    
 }
 
 #endif
