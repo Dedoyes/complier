@@ -24,6 +24,6 @@ letter -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r 
 lopt1 -> ++ | ! | --
 ropt1 -> ++ | --
 spcletter -> + | - | / | * | ! | @ | # | % | ^ | & | ( | ) | [ | ] | | | { | } | , | . | ; | : | ? | < | > | = | empty | '
-chartype -> 'spcletter' | 'number' | 'letter'
+chartype -> ' spcletter ' | ' number ' | ' letter '
 _stringtype -> chartype _stringtype | empty
-stringtype -> "_stringtype"
+stringtype -> " _stringtype "
