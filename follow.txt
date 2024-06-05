@@ -1,0 +1,32 @@
+follow[_s] = {$ }
+follow[_stringtype] = {" }
+follow[chartype] = {!= " % & && ' ) * + ++ , - -- / ; == ] ^ xor | || }
+follow[defstmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 ; = == A B C D E F G H I J K L M N O P Q R S T U
+V W X Y Z [ ^ _ a b bool c char d double e f float for g h i if int j k l m n o p q r return s string struct t u v void
+w while x xor y z { | || } }
+follow[defstmt_pos] = {} }
+follow[elifstmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 ; = == A B C D E F G H I J K L M N O P Q R S T U
+ V W X Y Z [ ^ _ a b bool c char d double e f float for g h i if int j k l m n o p q r return s string struct t u v void
+ w while x xor y z { | || } }
+follow[expr] = {!= % & && ) * + ++ , - -- / ; == ] ^ xor | || }
+follow[floatnum] = {!= % & && ) * + ++ , - -- / ; == ] ^ xor | || }
+follow[integrate] = {!= % & && ( ) * + ++ , - -- . / 0 1 2 3 4 5 6 7 8 9 ; = == [ ] ^ e xor | || }
+follow[letter] = {!= % & && ' ( ) * + ++ , - -- / 0 1 2 3 4 5 6 7 8 9 ; = == A B C D E F G H I J K L M N O P Q R S T U V
+ W X Y Z [ ] ^ _ a b c d e f g h i j k l m n o p q r s t u v w x xor y z | || }
+follow[lopt1] = {! != " % & && ' ( ) * + ++ , - -- / 0 1 2 3 4 5 6 7 8 9 ; == A B C D E F G H I J K L M N O P Q R S T U
+V W X Y Z [ ] ^ _ a b c d e f g h i j k l m n o p q r s t u v w x xor y z | || }
+follow[number] = {!= % & && ' ( ) * + ++ , - -- . / 0 1 2 3 4 5 6 7 8 9 ; = == [ ] ^ e xor | || }
+follow[opt2] = {! != " % & && ' ( ) * + ++ , - -- / 0 1 2 3 4 5 6 7 8 9 ; == A B C D E F G H I J K L M N O P Q R S T U V
+ W X Y Z [ ] ^ _ a b c d e f g h i j k l m n o p q r s t u v w x xor y z | || }
+follow[prostmt] = {! != " % & && ' ( * + ++ - -- / 0 1 2 3 4 5 6 7 8 9 ; = == A B C D E F G H I J K L M N O P Q R S T U
+V W X Y Z [ ^ _ a b bool c char d double e f float for g h i if int j k l m n o p q r return s string struct t u v void
+w while x xor y z { | || } }
+follow[protable] = {) }
+follow[ropt1] = {!= % & && ) * + ++ , - -- / ; == ] ^ xor | || }
+follow[spcletter] = {' }
+follow[stmt] = {) ; bool char double else float int string void } }
+follow[stringtype] = {!= % & && ) * + ++ , - -- / ; == ] ^ xor | || }
+follow[table] = {) }
+follow[type] = {) 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ _ a b c d e f g h i j k l m
+main n o p q r s t u v w x y z { }
+follow[var] = {!= % & && ( ) * + ++ , - -- / 0 1 2 3 4 5 6 7 8 9 ; = == [ ] ^ xor | || }
