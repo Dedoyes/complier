@@ -7,7 +7,7 @@ defstmt -> type var ( table ) { stmt }
 defstmt_pos -> type var ; defstmt_pos | type var ;
 defstmt -> struct type { defstmt_pos } ;
 prostmt -> for ( stmt ; expr ; stmt ) { stmt } stmt
-prostmt -> if ( expr ) { stmt } stmt elifstmt stmts
+prostmt -> if ( expr ) { stmt } stmt elifstmt stmt
 elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr ;
