@@ -12,6 +12,7 @@ inline string ChartoStr (char c) {   // char 类型转 string 类型函数
     return res;
 }
 
+map <string, int> nature;                     // 属性，为 1 是 Vn, 为 2 是 Vt
 map <string, set <string> > first, follow;    // first, follow 集合
 set <char> word;                              // 字集合， U - {$}
 Law law;                                      // 文法表
@@ -21,6 +22,8 @@ const char* pathLaw =                         // 本地目录名称
     "C:\\Users\\lumia\\CLionProjects\\cf1969\\Team_complier\\Law.in";
 const char* pathPrograme =
     "C:\\Users\\lumia\\CLionProjects\\cf1969\\Team_complier\\Program.in";
+map <string, vector <string> > lawG;          // 文法拓扑图
+map <string, int> lawindeg, lawoutdeg;        // 文法出入度
 
 inline void initLaw () {                      // 用 law.in 初始化文法
     freopen (pathLaw, "r", stdin);
@@ -123,6 +126,12 @@ inline void initVnVt () {                               // 初始化 Vn, Vt
             Vt.erase (x);
         }
     }
+    for (auto x : Vn) {
+        nature[x] = 1;
+    }
+    for (auto x : Vt) {
+        nature[x] = 2;
+    }
 }
 
 inline void printVn () {                        // 输出 Vn
@@ -139,10 +148,20 @@ inline void printVt () {                        // 输出 Vt
     }
 }
 
-inline void printFirst () {
+inline void printFirst () {                  // 输出 first 集合
     for (auto x : Vn) {
         cout << "first[" << x << "] = {";
         for (auto y : first[x]) {
+            cout << y << " ";
+        }
+        cout << "}" << endl;
+    }
+}
+
+inline void printFollow () {                // 输出 follow 集合
+    for (auto x : Vn) {
+        cout << "follow[" << x << "] = {";
+        for (auto y : follow[x]) {
             cout << y << " ";
         }
         cout << "}" << endl;
@@ -179,6 +198,68 @@ void getFirst () {                             // 求 first 集合
             }
             if (flag) {
                 first[tempVn].insert ("empty");
+            }
+        }
+    }
+}
+
+void getFollow () {                     // 求 follow 集合
+    follow["_s"].insert ("$");
+    for (auto st : law.st) {        // 用终结符初始化部分 follow 集合
+        for (int i = 0; i < st.Vt.size () - 1; i++) {
+            string thisVt = st.Vt[i];
+            string nextVt = st.Vt[i + 1];
+            if (nature[thisVt] == 1) {
+                for (auto x : first[nextVt]) {
+                    if (x == "empty") continue;
+                    follow[thisVt].insert (x);
+                }
+            }
+        }
+    }
+    for (auto st : law.st) {            // 建立文法拓扑图
+        string thisVn = st.Vn;
+        for (int i = 0; i < st.Vt.size (); i++) {
+            string thisVt = st.Vt[i];
+            if (nature[thisVt] == 1) {
+                bool flag = true;
+                for (int j = i + 1; j < st.Vt.size (); j++) {
+                    string tempVt = st.Vt[j];
+                    if (nature[tempVt] == 2) {
+                        flag = false;
+                        break;
+                    } else {
+                        auto it = first[tempVt].lower_bound ("empty");
+                        if (it == first[tempVt].end ()) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if (flag) {
+                    lawG[thisVn].push_back (thisVt);
+                    lawindeg[thisVt]++;
+                    lawoutdeg[thisVn]++;
+                }
+            }
+        }
+    }
+    queue <string> q;                       // 文法拓扑排序求 follow 集合
+    for (auto x : Vn) {
+        if (lawindeg[x] == 0) {
+            q.push (x);
+        }
+    }
+    while (!q.empty ()) {
+        string u = q.front ();
+        q.pop ();
+        for (auto v : lawG[u]) {
+            for (auto x : follow[u]) {
+                follow[v].insert (x);
+            }
+            lawindeg[v]--;
+            if (!lawindeg[v]) {
+                q.push (v);
             }
         }
     }
