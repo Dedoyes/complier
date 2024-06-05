@@ -7,7 +7,7 @@ defstmt -> type var ( table ) { stmt }
 defstmt_pos -> type var ; defstmt_pos | type var ;
 defstmt -> struct type { defstmt_pos } ;
 prostmt -> for ( stmt ; expr ; stmt ) { stmt } stmt
-prostmt -> if ( expr ) { stmt } stmt elifstmt
+prostmt -> if ( expr ) { stmt } stmt elifstmt stmts
 elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr ;
@@ -18,7 +18,7 @@ expr -> ( expr ) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr rop
 opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | !=
 integrate -> number integrate | number
 number -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-float -> integrate | integrate e integrate | integrate . integrate
+floatnum -> integrate | integrate e integrate | integrate . integrate
 var -> letter var | letter | var integrate | var [ expr ]
 letter -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | _
 lopt1 -> ++ | ! | -- | - | +
