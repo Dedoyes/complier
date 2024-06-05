@@ -238,7 +238,7 @@ void getFollow () {                     // 求 follow 集合
                     }
                 }
                 if (flag) {
-                    cout << "(" << thisVn << ", " << thisVt << ")" << endl;
+                    //cout << "(" << thisVn << ", " << thisVt << ")" << endl;
                     lawG[thisVn].push_back (thisVt);
                     lawindeg[thisVt]++;
                     lawoutdeg[thisVn]++;
