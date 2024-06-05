@@ -97,6 +97,7 @@ inline void initLaw () {                      // 用 law.in 初始化文法
     tempVt[0] = "|";
     law.st.push_back (stmt (tempVn, tempVt));
     sort (law.st.begin (), law.st.end ());
+    cin.clear ();
 }
 
 inline void initword () {                               // 初始化字表
@@ -265,6 +266,17 @@ void getFollow () {                     // 求 follow 集合
             }
         }
     }
+}
+
+inline void getPrograme () {                    // 读入程序
+    freopen (pathPrograme, "r", stdin);
+    string temps;
+    while (getline (cin, temps)) {
+        programe += temps;
+        programe += '\n';
+    }
+    fclose (stdin);
+    cin.clear ();
 }
 
 #endif
