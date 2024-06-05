@@ -221,6 +221,7 @@ void getFollow () {                     // 求 follow 集合
         string thisVn = st.Vn;
         for (int i = 0; i < st.Vt.size (); i++) {
             string thisVt = st.Vt[i];
+            if (thisVn == thisVt) continue;
             if (nature[thisVt] == 1) {
                 bool flag = true;
                 for (int j = i + 1; j < st.Vt.size (); j++) {
@@ -237,6 +238,7 @@ void getFollow () {                     // 求 follow 集合
                     }
                 }
                 if (flag) {
+                    cout << "(" << thisVn << ", " << thisVt << ")" << endl;
                     lawG[thisVn].push_back (thisVt);
                     lawindeg[thisVt]++;
                     lawoutdeg[thisVn]++;
