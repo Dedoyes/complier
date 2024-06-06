@@ -14,6 +14,7 @@ doubleHash OriginProgamF;               // 程序的双哈希表
 #include "Token.h"
 #include "completeLaw.h"
 #include "quaternion.h"
+#include "LR0.h"
 
 int main () {
     cout << "ok" << endl;
@@ -23,8 +24,8 @@ int main () {
     initVnVt ();
     getPrograme ();
     programPreWork ();
-    cout << programe << endl;
-    law.print ();
+    //cout << programe << endl;
+    //law.print ();
     OriginProgamF.initHash (programe);
     //int pos = 0;  这段注释指出了双哈希的用法
     //while (pos < programe.size ()) {
@@ -36,7 +37,13 @@ int main () {
     makeUpLaw ();
     getFirst ();
     getFollow ();
-    law.print ();
+    Border_Law (law);
+    closure clo;
+    vector <string> tempVt;
+    tempVt.push_back ("_s");
+    clo.close.insert (item (0, stmt ("__s", tempVt)));
+    clo.print ();
+    borderClousre (clo).print ();
     cout << "ok" << endl;
     return 0;
 }
