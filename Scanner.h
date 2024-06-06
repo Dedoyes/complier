@@ -123,6 +123,7 @@ inline void initVnVt () {                               // 初始化 Vn, Vt
     }
     for (auto x : Vn) {
         auto it = Vt.lower_bound (x);
+        if (it == Vt.end ()) continue;
         if (*it == x) {
             Vt.erase (x);
         }
@@ -184,7 +185,7 @@ void getFirst () {                             // 求 first 集合
             bool flag = true;
             for (auto x : tempVt) {
                 auto it = first[x].lower_bound ("empty");
-                if (it != first[x].end ()) {
+                if (it != first[x].end () && (*it == "first")) {
                     for (auto y : first[x]) {
                         if (y == "empty") continue;
                         first[tempVn].insert (y);
@@ -232,7 +233,7 @@ void getFollow () {                     // 求 follow 集合
                         break;
                     } else {
                         auto it = first[tempVt].lower_bound ("empty");
-                        if (it == first[tempVt].end ()) {
+                        if (it == first[tempVt].end () || (*it != "empty")) {
                             flag = false;
                             break;
                         }
