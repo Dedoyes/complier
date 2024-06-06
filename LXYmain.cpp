@@ -1,4 +1,3 @@
-//我还没写完
 #include<iostream>
 #include<vector>
 #include<algorithm>
@@ -40,24 +39,24 @@ struct Law {
 //词法结构
 struct Lexical {
 
-    map <string,int> K;//关键字
-    map <string,int> P;//界符
-    map <string,int> I;//标识符
+    map <string, int> K;//关键字
+    map <string, int> P;//界符
+    map <string, int> I;//标识符
     int NUMI = 0;
-    map <string,int> C1;//常整数
+    map <string, int> C1;//常整数
     int NUMC1 = 0;
-    map <string,int> C2;//浮点数
+    map <string, int> C2;//浮点数
     int NUMC2 = 0;
-    map <string,int> CT;
+    map <string, int> CT;
     int NUMCT = 0;
-    map <string,int> ST;
+    map <string, int> ST;
     int NUMST = 0;
 
     //存Token序列
     vector <token> Token;
 
     vector <string> now;
-    
+
     //初始化关键字表和界符表
     void iniK() {
         K["int"] = 1;
@@ -113,10 +112,12 @@ struct Lexical {
         P["^"] = 31;
         P["\'"] = 32;
         P["\""] = 33;
+        P["*="] = 33;
+        P["/="] = 33;
     }
-    
+
     bool isK(string S) {
-        if(K.count(S)) {
+        if (K.count(S)) {
             token Var;
             Var.TokenA = "K";
             Var.TokenB = K[S];
@@ -129,7 +130,7 @@ struct Lexical {
     }
 
     bool isP(string S) {
-        if(P.count(S)) {
+        if (P.count(S)) {
             token Var;
             Var.TokenA = "P";
             Var.TokenB = P[S];
@@ -142,13 +143,13 @@ struct Lexical {
     }
 
     void isI(string S) {
-        if(I.count(S)) {
+        if (I.count(S)) {
             token Var;
             Var.TokenA = "I";
             Var.TokenB = I[S];
             Token.push_back(Var);
         }
-        else if(!I.count(S)) {
+        else if (!I.count(S)) {
             I[S] = ++NUMI;
             token Var;
             Var.TokenA = "I";
@@ -158,13 +159,13 @@ struct Lexical {
     }
 
     void isC1(string S) {
-        if(C1.count(S)) {
+        if (C1.count(S)) {
             token Var;
             Var.TokenA = "C1";
             Var.TokenB = C1[S];
             Token.push_back(Var);
         }
-        else if(!C1.count(S)) {
+        else if (!C1.count(S)) {
             C1[S] = ++NUMC1;
             token Var;
             Var.TokenA = "C1";
@@ -174,13 +175,13 @@ struct Lexical {
     }
 
     void isC2(string S) {
-        if(C2.count(S)) {
+        if (C2.count(S)) {
             token Var;
             Var.TokenA = "C2";
             Var.TokenB = C2[S];
             Token.push_back(Var);
         }
-        else if(!C2.count(S)) {
+        else if (!C2.count(S)) {
             C2[S] = ++NUMC2;
             token Var;
             Var.TokenA = "C2";
@@ -190,13 +191,13 @@ struct Lexical {
     }
 
     void isCT(string S) {
-        if(CT.count(S)) {
+        if (CT.count(S)) {
             token Var;
             Var.TokenA = "CT";
             Var.TokenB = CT[S];
             Token.push_back(Var);
         }
-        else if(!CT.count(S)) {
+        else if (!CT.count(S)) {
             CT[S] = ++NUMCT;
             token Var;
             Var.TokenA = "CT";
@@ -206,13 +207,13 @@ struct Lexical {
     }
 
     void isST(string S) {
-        if(ST.count(S)) {
+        if (ST.count(S)) {
             token Var;
             Var.TokenA = "ST";
             Var.TokenB = ST[S];
             Token.push_back(Var);
         }
-        else if(!ST.count(S)) {
+        else if (!ST.count(S)) {
             ST[S] = ++NUMST;
             token Var;
             Var.TokenA = "ST";
@@ -223,28 +224,28 @@ struct Lexical {
 
     //判断是不是数字
     bool isfigure(char S) {
-        if(S >= '0' && S <= '9') {
+        if (S >= '0' && S <= '9') {
             return true;
         }
         return false;
     }
     //字母
     bool isletter(char S) {
-        if((S >= 'A' && S <= 'Z') || (S >= 'a' && S <= 'z') || (S == '_')) {
+        if ((S >= 'A' && S <= 'Z') || (S >= 'a' && S <= 'z') || (S == '_')) {
             return true;
         }
         return false;
     }
     //符号
     bool issymbol(char S) {
-        if(!isfigure(S) && !isletter(S) && !isspace(S)) {
+        if (!isfigure(S) && !isletter(S) && !isspace(S)) {
             return true;
         }
         return false;
     }
     //空格
     bool isspace(char S) {
-        if(S == ' '){
+        if (S == ' ') {
             return true;
         }
         return false;
@@ -255,50 +256,50 @@ struct Lexical {
         int Cleng = Coden.length();
         int i = 0;
         tem += Coden[i];
-        for(;i < Cleng - 1;) {
-            if(isletter(tem[0])) {
-                if(isletter(Coden[i + 1])) {
+        for (; i < Cleng - 1;) {
+            if (isletter(tem[0])) {
+                if (isletter(Coden[i + 1])) {
                     tem += Coden[++i];
                 }
-                else if(isfigure(Coden[i + 1])) {
+                else if (isfigure(Coden[i + 1])) {
                     tem += Coden[++i];
                 }
-                else if(isspace(Coden[i + 1])) {
-                    if(isK(tem)) {
+                else if (isspace(Coden[i + 1])) {
+                    if (isK(tem)) {
                         tem.clear();
                         tem += Coden[++i];
                     }
-                    else{
+                    else {
                         isI(tem);
                         tem.clear();
                         tem += Coden[++i];
                     }
                 }
-                else if(issymbol(Coden[i + 1])) {
-                    if(Coden[i + 1] == '.'){
+                else if (issymbol(Coden[i + 1])) {
+                    if (Coden[i + 1] == '.') {
                         cout << m << "行第" << i << "处字符附近出现错误" << endl;
                         return false;
                     }
 
-                    if(isK(tem)) {
+                    if (isK(tem)) {
                         tem.clear();
                         tem += Coden[++i];
                     }
-                    else{
+                    else {
                         isI(tem);
                         tem.clear();
                         tem += Coden[++i];
                     }
                 }
             }
-            else if(isfigure(tem[0])) {
-                if(isletter(Coden[i + 1])) {
-                    if(Coden[i + 1] == 'e') {
+            else if (isfigure(tem[0])) {
+                if (isletter(Coden[i + 1])) {
+                    if (Coden[i + 1] == 'e') {
                         tem += Coden[++i];
-                        if(Coden[i + 1] == '+' || Coden[i + 1] == '-') {
+                        if (Coden[i + 1] == '+' || Coden[i + 1] == '-') {
                             tem += Coden[++i];
                         }
-                        else if(isfigure(Coden[i + 1])) {
+                        else if (isfigure(Coden[i + 1])) {
                             tem += Coden[++i];
                         }
                         else {
@@ -311,44 +312,44 @@ struct Lexical {
                         return false;
                     }
                 }
-                else if(isfigure(Coden[i + 1])) {
+                else if (isfigure(Coden[i + 1])) {
                     tem += Coden[++i];
                 }
-                else if(isspace(Coden[i + 1])) {
+                else if (isspace(Coden[i + 1])) {
                     int F = 0;
-                    for(int have = 0;have <= tem.length();have++) {
-                        if(tem[have] == 'e' || tem[have] == '.') {
+                    for (int have = 0; have <= tem.length(); have++) {
+                        if (tem[have] == 'e' || tem[have] == '.') {
                             F = 1;
                         }
                     }
-                    if(F == 0) {
+                    if (F == 0) {
                         isC1(tem);
                         tem.clear();
                         tem += Coden[++i];
                     }
-                    else if(F == 1) {
+                    else if (F == 1) {
                         isC2(tem);
                         tem.clear();
                         tem += Coden[++i];
                     }
                 }
-                else if(issymbol(Coden[i + 1])) {
-                    if(Coden[i + 1] == '.') {
+                else if (issymbol(Coden[i + 1])) {
+                    if (Coden[i + 1] == '.') {
                         tem += Coden[++i];
                     }
                     else {
                         int F = 0;
-                        for(int have = 0;have <= tem.length();have++) {
-                            if(tem[have] == 'e' || tem[have] == '.') {
+                        for (int have = 0; have <= tem.length(); have++) {
+                            if (tem[have] == 'e' || tem[have] == '.') {
                                 F = 1;
                             }
                         }
-                        if(F == 0) {
+                        if (F == 0) {
                             isC1(tem);
                             tem.clear();
                             tem += Coden[++i];
                         }
-                        else if(F == 1) {
+                        else if (F == 1) {
                             isC2(tem);
                             tem.clear();
                             tem += Coden[++i];
@@ -356,16 +357,218 @@ struct Lexical {
                     }
                 }
             }
-            else if(isspace(tem[0])) {
+            else if (isspace(tem[0])) {
                 tem.clear();
                 tem += Coden[++i];
             }
-            else if(issymbol(tem[0])) {
-                
+            else if (issymbol(tem[0])) {
+                if (tem[0] == '\'') {
+                    if (isP(tem)) {
+                        tem.clear();
+                        tem += Coden[++i];
+                        if (Coden[i + 1] != '\'') {
+                            cout << "第" << m << "行出现错误，字符定义错误" << endl;
+                            return false;
+                        }
+                        else {
+                            isCT(tem);
+                            tem.clear();
+                            tem += Coden[++i];
+                            if (isP(tem)) {
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                        }
+                    }
+                }
+                else if (tem[0] == '\"') {
+                    if (isP(tem)) {
+                        tem.clear();
+                        tem += Coden[++i];
+                        while (Coden[i + 1] != '\"') {
+                            tem += Coden[++i];
+                        }
+                        isST(tem);
+                        tem.clear();
+                        tem += Coden[++i];
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        };
+
+                    }
+                }
+                else if (isletter(Coden[i + 1])) {
+                     if (isP(tem)) {
+                         tem.clear();
+                         tem += Coden[++i];
+                     }
+                     else {
+                         cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                         cout << tem << "不存在于界符表里" << endl;
+                         return false;
+                     }
+                }
+                else if (isspace(Coden[i + 1])) {
+                    if (tem[0] == '-') {
+                        token Now = Token.back();
+                        if (Now.TokenA == "P") {
+                            i++;
+                        }
+                    }
+                    else {
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                            cout << tem << "不存在于界符表里" << endl;
+                            return false;
+                        }
+                    }
+                }
+                else if (issymbol(Coden[i + 1])) {
+                    if (tem[0] != '+' && tem[0] != '-') {
+                        tem += Coden[++i];
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            string out1, out2;
+                            out1 += tem[0];
+                            out2 += tem[1];
+                            if (isP(out1)) {
+                                if (isP(out2)) {
+                                    tem.clear();;
+                                    tem += Coden[++i];
+                                }
+                                else {
+                                    cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                                    cout << tem << "不存在于界符表里" << endl;
+                                    return false;
+                                }
+                            }
+                            else {
+                                cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                                cout << tem << "不存在于界符表里" << endl;
+                                return false;
+                            }
+                        }
+                    }
+                    else if (tem[0] == '+' && Coden[i + 1] == '=') {
+                        tem += Coden[++i];
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {}
+                    }
+                    else if (tem[0] == '-' && Coden[i + 1] == '=') {
+                        tem += Coden[++i];
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {}
+                    }
+                    else {
+                        int Addnum = 0;
+                        int Subnum = 0;
+
+                        if (tem[0] == '+') {
+                            Addnum++;
+                        }
+                        else if (tem[0] == '-') {
+                            Subnum++;
+                        }
+                        while (Coden[i + 1] == '+' || Coden[i + 1] == '-') {
+                            if (Coden[i + 1] == '+') {
+                                Addnum++;
+                            }
+                            else if (Coden[i + 1] == '-') {
+                                Subnum++;
+                            }
+
+                            tem += Coden[++i];
+                        }
+
+                        if (Addnum == 2 || Subnum == 2) {
+                            if (isP(tem)) {
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                        }
+                        else if (Subnum != 0 && Addnum == 0) {
+                            if (Subnum % 2 == 0) {
+                                for (int j = 0; j < tem.length(); ) {
+                                    string spc;
+                                    spc += tem[j++];
+                                    if (isP(spc)) {}
+                                }
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                            else {
+                                cout << m << "行" << "出现错误" << endl;
+                                return false;
+                            }
+                        }
+                        else if (Addnum != 0 && Subnum == 0) {
+                            if (Addnum % 2 == 0) {
+                                for (int j = 0; j < tem.length(); ) {
+                                    string spc;
+                                    spc += tem[j++];
+                                    if (isP(spc)) {}
+                                }
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                            else {
+                                cout << m << "行" << "出现错误" << endl;
+                                return false;
+                            }
+                        }
+                    }
+
+                }
+                else if (isfigure(Coden[i + 1])) {
+                    if (tem[0] == '-') {
+                        token Now = Token.back();
+                        if (Now.TokenA == "P") {
+                            tem += Coden[++i];
+                            isC1(tem);
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            if (isP(tem)) {
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                            else {
+                                cout << m << "行" << "出现错误" << endl;
+                                return false;
+                            }
+                        }
+                    }
+                    else {
+                        if (isP(tem)) {
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            cout << m << "行" << "出现错误" << endl;
+                            return false;
+                        }
+                    }
+                }
             }
         }
+        if (isP(tem)) {}
+        return true;
     }
-
 };
 
 int main() {
@@ -383,12 +586,17 @@ int main() {
     while (n--) {
         string temp;  // 一行一行代码来  进行词法分析
         getline(cin, temp);
-        bool truth = Word.Disassemble(temp,clock++);
+        bool truth = Word.Disassemble(temp, clock++);
+        if (truth) {
+            cout << "词法分析成功" << endl;
+        }
+        else {
+            cout << "词法分析失败" << endl;
+        }
 
-
-
-
-
+        for (auto c : Word.Token) {
+            cout << "(" << c.TokenA << "," << c.TokenB << ")" << endl;
+        }
     }
     return 0;
 }
