@@ -24,10 +24,10 @@ struct item {                               // 项目集
     }
     inline void print () {
         cout << st.Vn << "->";
-        for (int i = 0; i <= pos; i++)
+        for (int i = 0; i <= pos - 1; i++)
             cout << st.Vt[i] << " ";
         cout << "[*]";
-        for (int i = pos + 1; i <= st.Vt.size() - 1; i++) {
+        for (int i = pos; i <= st.Vt.size() - 1; i++) {
             cout << st.Vt[i] << " ";
         }
         cout << endl;
@@ -85,8 +85,29 @@ int closureCnt;
 set <closure> lawI;
 map <closure, int> closureF;
 
-void borderClousre (closure &clo) {
-    
+closure borderClousre (closure &clo) {          // 求出内核项的全闭包
+    map <string, bool> isBorder;
+    closure ret = clo;
+    auto it = ret.close.begin ();
+    while (true) {
+        bool flag = false;
+        for (; it != ret.close.end (); it++) {
+            auto itm = *it;
+            int pos = itm.pos;
+            string nextVn = itm.st.Vt[pos];
+            if (nature[nextVn] == 1) {
+                for (auto x : law.queryVn (nextVn)) {
+                    item newitm = item (0, x);
+                    ret.close.insert (newitm);
+                    flag = true;
+                }
+            }
+        }
+        if (!flag) {
+            break;
+        }
+    }
+    return ret;
 }
 
 void bfs (closure &clo) {
@@ -95,7 +116,7 @@ void bfs (closure &clo) {
     while (!q.empty ()) {
         auto u = q.front ();
         q.pop ();
-        
+
     }
 }
 
