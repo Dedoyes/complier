@@ -39,6 +39,9 @@ struct stmt {                                     // 派生语句
         }
         return thisStr == stStr;
     }
+    bool operator != (const stmt &st) const {
+        return !(*this == st);
+    }
     inline void print () {
         cout << Vn << " -> ";
         for (auto x : Vt) {
@@ -62,5 +65,11 @@ struct Law {                                    // 文法
         }
     }
 };
+
+void Border_Law (Law &law) {            // 增广文法
+    vector <string> tempSt;
+    tempSt.push_back ("_s");
+    law.st.push_back (stmt ("__s", tempSt));
+}
 
 #endif //TEAM_COMPLIER_LAW_H
