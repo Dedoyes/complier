@@ -385,17 +385,26 @@ struct Lexical {
                     if (isP(tem)) {
                         tem.clear();
                         tem += Coden[++i];
-                        while (Coden[i + 1] != '\"') {
-                            tem += Coden[++i];
+                        if (tem[0] == '\"') {
+                            string impor = "";
+                            isST(impor);
+                            if (isP(tem)) {
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
                         }
-                        isST(tem);
-                        tem.clear();
-                        tem += Coden[++i];
-                        if (isP(tem)) {
+                        else {
+                            while (Coden[i + 1] != '\"') {
+                                tem += Coden[++i];
+                            }
+                            isST(tem);
                             tem.clear();
                             tem += Coden[++i];
-                        };
-
+                            if (isP(tem)) {
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                        }
                     }
                 }
                 else if (isletter(Coden[i + 1])) {
@@ -566,7 +575,33 @@ struct Lexical {
                 }
             }
         }
-        if (isP(tem)) {}
+        if (isletter(tem[0])) {
+            if (isK(tem)) {
+
+            }
+            else {
+                isI(tem);
+            }
+        }
+        else if (isfigure(tem[0])) {
+            int tems = 0;
+            for (int sp = 0; sp < tem.length(); sp++) {
+                if (tem[sp] == 'e' || tem[sp] == '.') {
+                    tems = 1;
+                }
+            }
+            if (tems == 0) {
+                isC1(tem);
+            }
+            else {
+                isC2(tem);
+            }
+        }
+        else if (issymbol(tem[0])) {
+            if(isP(tem)){
+            
+            }
+        }
         return true;
     }
 };
@@ -592,6 +627,7 @@ int main() {
         }
         else {
             cout << "词法分析失败" << endl;
+
         }
 
         for (auto c : Word.Token) {
