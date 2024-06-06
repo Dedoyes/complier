@@ -64,12 +64,55 @@ struct Law {                                    // 文法
             x.print ();
         }
     }
+    vector <stmt> queryVn (string &Vn) {     // 文法有序时 O(logn + |ans|) 得到 Vn->...的派生语句集合
+        vector <stmt> ret;
+        int leftPos = -1;
+        int L = 0, R = st.size ();
+        while (L <= R) {
+            int mid = (L + R) >> 1;
+            stmt tempSt = st[mid];
+            if (tempSt.Vn < Vn) {
+                L = mid + 1;
+            } else if (tempSt.Vn > Vn) {
+                R = mid - 1;
+            } else {
+                if (leftPos == -1) {
+                    leftPos = mid;
+                } else {
+                    leftPos = min (leftPos, mid);
+                }
+                R = mid - 1;
+            }
+        }
+        if (leftPos == -1) {
+            return ret;
+        }
+        int rightPos = -1;
+        L = 0, R = st.size ();
+        while (L <= R) {
+            int mid = (L + R) >> 1;
+            stmt tempSt = st[mid];
+            if (tempSt.Vn < Vn) {
+                L = mid + 1;
+            } else if (tempSt.Vn > Vn) {
+                R = mid - 1;
+            } else {
+                rightPos = max (rightPos, mid);
+                L = mid + 1;
+            }
+        }
+        for (int i = leftPos; i <= rightPos; i++) {
+            ret.push_back (st[i]);
+        }
+        return ret;
+    }
 };
 
 void Border_Law (Law &law) {            // 增广文法
     vector <string> tempSt;
     tempSt.push_back ("_s");
     law.st.push_back (stmt ("__s", tempSt));
+    sort (law.st.begin (), law.st.end ());
 }
 
 #endif //TEAM_COMPLIER_LAW_H
