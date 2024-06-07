@@ -1,3 +1,6 @@
+#ifndef LEXICALANALYSIS_H
+#define LEXICALANALYSIS_H
+
 #include<iostream>
 #include<vector>
 #include<algorithm>
@@ -394,7 +397,7 @@ struct Lexical {
                             }
                         }
                         else {
-                            while (Coden[i + 1] != '\"') {
+                            while (Coden[i + 1] != '\"' || (Coden[i] == '\\' && Coden[i + 1] == '\"')) {
                                 tem += Coden[++i];
                             }
                             isST(tem);
@@ -408,15 +411,15 @@ struct Lexical {
                     }
                 }
                 else if (isletter(Coden[i + 1])) {
-                     if (isP(tem)) {
-                         tem.clear();
-                         tem += Coden[++i];
-                     }
-                     else {
-                         cout << m << "行第" << i << "处字符附近出现错误" << endl;
-                         cout << tem << "不存在于界符表里" << endl;
-                         return false;
-                     }
+                    if (isP(tem)) {
+                        tem.clear();
+                        tem += Coden[++i];
+                    }
+                    else {
+                        cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                        cout << tem << "不存在于界符表里" << endl;
+                        return false;
+                    }
                 }
                 else if (isspace(Coden[i + 1])) {
                     if (tem[0] == '-') {
@@ -598,30 +601,29 @@ struct Lexical {
             }
         }
         else if (issymbol(tem[0])) {
-            if(isP(tem)){
-            
+            if (isP(tem)) {
+
             }
         }
         return true;
     }
 };
 
-int main() {
+struct Lexical WordFinal;//词法分析的全局变量 Word
 
-    //初始化
-    struct Lexical Word;
-    Word.iniK();
-    Word.iniP();
+void Lexical_Analysis() {
+    WordFinal.iniK();
+    WordFinal.iniP();
 
-
-    int n; //假设有n行代码
-    cin >> n;
+    int n_hypothesis;//假设有n行代码
+    cin >> n_hypothesis;
     getchar();
-    int clock = 1;
-    while (n--) {
+    int ClockA = 1;//代表当前分析的是第几行代码
+
+    while (n_hypothesis--) {
         string temp;  // 一行一行代码来  进行词法分析
         getline(cin, temp);
-        bool truth = Word.Disassemble(temp, clock++);
+        bool truth = WordFinal.Disassemble(temp, ClockA++);
         if (truth) {
             cout << "词法分析成功" << endl;
         }
@@ -629,10 +631,12 @@ int main() {
             cout << "词法分析失败" << endl;
 
         }
-
-        for (auto c : Word.Token) {
-            cout << "(" << c.TokenA << "," << c.TokenB << ")" << endl;
-        }
     }
-    return 0;
+
+    for (auto C : WordFinal.Token) {
+        cout << "(" << C.TokenA << "," << C.TokenB << ")" << endl;
+    }
 }
+
+#endif
+
