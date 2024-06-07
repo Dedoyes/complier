@@ -174,7 +174,7 @@ int main() {
         {"while", "t3", "10", "L2"},
         {"for", "i", "0", "L3"},
         {"CALL", "func", "", ""}
-    };
+    };//正常是根据jjh传
 
     generateAssembly(quaternions);
     return 0;
