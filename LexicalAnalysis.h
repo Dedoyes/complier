@@ -16,29 +16,6 @@ struct token {
     int TokenB;
 };
 
-struct stmt {
-    string Vn;
-    vector <string> Vt;
-    stmt() {}
-    stmt(string _Vn, vector <string>& _Vt) {
-        Vn = _Vn;
-        for (auto x : _Vt) {
-            Vt.push_back(x);
-        }
-    }
-};
-
-struct Law {
-    vector <stmt> st;
-    Law() {}
-    Law(vector <stmt> _st) {
-        for (auto x : _st) {
-            st.push_back(x);
-        }
-    }
-};
-
-
 //词法结构
 struct Lexical {
 
