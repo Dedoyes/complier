@@ -39,9 +39,9 @@ int main () {
     getFollow ();
     Border_Law (law);
     LR0 ();
-    for (auto x : lawI) {
-        x.print ();
-    }
+    //for (auto x : lawI) {
+    //    x.print ();
+    //}
     cout << "ok" << endl;
     return 0;
 }
