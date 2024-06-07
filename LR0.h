@@ -87,34 +87,36 @@ int closureCnt;                                 // 内核项闭包时间戳
 set <closure> lawI;                              // 内核项闭包集合
 map <closure, int> closureF;                    // 内核项闭包离散化函数
 map <string, int> closureG[CLOSURE_MAX_CNT];    // 内核项闭包图
+map <closure, bool> dfsVis;
+
+void closureDfs (closure &u, closure &ret) {
+    dfsVis[u] = true;
+    for (auto v : u.close) {
+        int pos = v.pos;
+        if (pos == v.st.Vt.size ()) continue;
+        if (v.st.Vt[pos] == "empty") continue;
+        string nextS = v.st.Vt[pos];
+        auto vecStmt = law.queryVn (nextS);
+        closure temp;
+        for (auto x : vecStmt) {
+            item newitm = item (0, x);
+            ret.close.insert (newitm);
+            temp.close.insert (newitm);
+        }
+        if (!dfsVis[temp])
+            closureDfs(temp, ret);
+    }
+}
 
 closure borderClousre (closure &clo) {          // 求出内核项的全闭包
     closure ret = clo;
     auto it = ret.close.begin ();
-    while (true) {
-        bool flag = false;
-        for (; it != ret.close.end (); it++) {
-            auto itm = *it;
-            int pos = itm.pos;
-            if (pos == itm.st.Vt.size ())
-                continue;
-            string nextVn = itm.st.Vt[pos];
-            if (nature[nextVn] == 1) {
-                for (auto x : law.queryVn (nextVn)) {
-                    item newitm = item (0, x);
-                    ret.close.insert (newitm);
-                    flag = true;
-                }
-            }
-        }
-        if (!flag) {
-            break;
-        }
-    }
+    closureDfs (clo, ret);
     return ret;
 }
 
 void bfs (closure &clo) {
+    law.print ();
     map <closure, bool> cloVis;
     cout << "bfs ()" << endl;
     queue <closure> q;
@@ -189,6 +191,18 @@ void bfs (closure &clo) {
     }
 }
 
+bool syntaxCacu () {
+    stack <int> stk;
+    stack <string> charStk;
+    programe += "$";
+    stk.push (0);
+    charStk.push ("$");
+    int pos = 0, u = 1;
+    for (; pos < programe.size (); ) {
+
+    }
+}
+
 bool LR0 () {
     cout << "no problem" << endl;
     closure start;
@@ -199,6 +213,7 @@ bool LR0 () {
     It.st = stmt ("__s", vec);
     start.close.insert (It);
     bfs (start);
+    cout << "cnt = " << closureCnt << endl;
     return true;
 }
 
