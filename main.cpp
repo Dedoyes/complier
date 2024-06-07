@@ -38,12 +38,10 @@ int main () {
     getFirst ();
     getFollow ();
     Border_Law (law);
-    closure clo;
-    vector <string> tempVt;
-    tempVt.push_back ("_s");
-    clo.close.insert (item (0, stmt ("__s", tempVt)));
-    clo.print ();
-    borderClousre (clo).print ();
+    LR0 ();
+    for (auto x : lawI) {
+        x.print ();
+    }
     cout << "ok" << endl;
     return 0;
 }
