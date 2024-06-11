@@ -13,8 +13,13 @@ doubleHash OriginProgamF;               // 程序的双哈希表
 #include "preWork.h"
 #include "Token.h"
 #include "completeLaw.h"
+#include "Lexical_Analysis.h"
+#include "getSize.h"
 #include "quaternion.h"
 #include "LR0.h"
+#include "cacuAdress.h"
+#include "assamble_generate.h"
+
 
 int main () {
     cout << "ok" << endl;
@@ -37,6 +42,7 @@ int main () {
     makeUpLaw ();
     getFirst ();
     getFollow ();
+    //Lexical_Analysis ();
     Border_Law (law);
     LR0 ();
     //for (auto x : lawI) {
@@ -45,3 +51,5 @@ int main () {
     cout << "ok" << endl;
     return 0;
 }
+
+
