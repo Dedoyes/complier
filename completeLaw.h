@@ -1,6 +1,17 @@
 #ifndef TEAM_COMPLIER_COMPLETELAW_H
 #define TEAM_COMPLIER_COMPLETELAW_H
 
+set <string> typeTable;
+
+inline void initTypeTable () {
+    typeTable.insert ("int");
+    typeTable.insert ("float");
+    typeTable.insert ("double");
+    typeTable.insert ("char");
+    typeTable.insert ("bool");
+    typeTable.insert ("string");
+};
+
 inline void makeUpLaw () {
     int pos = 0;
     int len = programe.size () - 1;
@@ -29,8 +40,15 @@ inline void makeUpLaw () {
         stmt newstmt = stmt (tempVn, tempVt);
         law.st.push_back (newstmt);
         cout << "type ->" << newType << endl;
+        typeTable.insert (newType);
+        finds = "}";
+        int nextpos = OriginProgamF.findPos (finds, pos);
+
+
     }
     sort (law.st.begin (), law.st.end ());
 }
 
 #endif //TEAM_COMPLIER_COMPLETELAW_H
+
+
