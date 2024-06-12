@@ -67,7 +67,7 @@ struct Law {                                    // 文法
     vector <stmt> queryVn (string &Vn) {     // 文法有序时 O(logn + |ans|) 得到 Vn->...的派生语句集合
         vector <stmt> ret;
         int leftPos = -1;
-        int L = 0, R = st.size ();
+        int L = 0, R = st.size () - 1;
         while (L <= R) {
             int mid = (L + R) >> 1;
             stmt tempSt = st[mid];
@@ -88,7 +88,7 @@ struct Law {                                    // 文法
             return ret;
         }
         int rightPos = -1;
-        L = 0, R = st.size ();
+        L = 0, R = st.size () - 1;
         while (L <= R) {
             int mid = (L + R) >> 1;
             stmt tempSt = st[mid];
