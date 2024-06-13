@@ -13,13 +13,26 @@ int func ( int a, int b, int c) {
 }
 
 int main () {
+    x = func (1, 1, 1);
     if (1) {
         x = 1;
     }
+    if (x == 1) {
+        t = x;
+        x = 1;
+        y = 1;
+        for (int i = 1; i <= n; i++) {
+            x[i] = i;
+        }
+    }
     for (int i = 1; i <= n; i++ ) {
+        x = 1;
+        t = 1;
         if ( x == 1 ) {
             y = 10;
         }
+    }
+    for (int i = 1; i <= n; i++) {
         x[i] = i;
     }
     int y;
