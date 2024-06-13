@@ -53,6 +53,7 @@ struct stmt {                                     // 派生语句
 
 struct Law {                                    // 文法
     vector <stmt> st;                           // 文法语句表
+    map <stmt, int> idx;
     Law () {}
     Law (vector <stmt> _st) {
         for (auto x : _st) {
@@ -106,6 +107,12 @@ struct Law {                                    // 文法
         }
         return ret;
     }
+    inline void getIdx () {
+        int cnt = 0;
+        for (auto x : this->st) {
+            this->idx[x] = ++cnt;
+        }
+    }
 };
 
 void Border_Law (Law &law) {            // 增广文法
@@ -113,6 +120,7 @@ void Border_Law (Law &law) {            // 增广文法
     tempSt.push_back ("_s");
     law.st.push_back (stmt ("__s", tempSt));
     sort (law.st.begin (), law.st.end ());
+    law.getIdx ();
 }
 
 #endif //TEAM_COMPLIER_LAW_H
