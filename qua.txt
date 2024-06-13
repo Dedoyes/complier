@@ -1,322 +1,670 @@
-//**********************int********************
-// int a;
-// int a,b,c;
-// int a = 1;
-// int a = 1 , b = 2 , c = 3;
- // int a = 1 + (2+3);
+//总体第一个版本
+//目前支持 int = + - * / += -= ... if for while 数组 函数声明 调用 
+ 
+//但不支持语句嵌套
 
-生成四元式序列：
-// ( declare , _ , _ , a)
-
-// ( declare , _ , _ , a)
-// ( declare , _ , _ , b)
-// ( declare , _ , _ , c)
-
-
-// ( declare , _ , _ , a)
-// ( = , 1 , _ , a )
-// ( declare , _ , _ , b)
-// ( = , 2, _ , b )
-// ( declare , _ , _ , c)
-// ( = , 3 , _ , c )
-
-
-int main() {
-    // ...
-    return 0;
-}
-1. (main_start, main, -, -)  // 主函数开始标记 main_end
-2. (return_type, -, -, int)      // 声明主函数返回类型为int//*********************************************
-3. (main_end, main, -, -)    // 主函数结束标记  cseg ends end start
-
-
-int add(int x, int y) {
-    int result = x + y;
-    return result;
-}
-//四元式表示
-1. (function_begin, int , -,add)   // 函数add开始标记 
-3. (param, -, -, x)              // 声明参数x
-4. (param, -, -, y)              // 声明参数y
-5. (declare, -, -, result)       // 声明局部变量result///局部变量 数据段里
-6. (+, x, y, T1)                 // 计算x + y，结果存入临时变量T1
-7. (=, T1, -, result)            // 将T1的值赋给result
-8. (return, result, -, -)        // 返回result的值
-9. (function_end, add, -, -)     // 函数add结束标记
-
-//*******************************************赋值语句****************************************
-
-(+, A, B, T1)  // 将A和B相加，结果存入临时变量T1 
-(-, C, D, T2)  // 将C减去D，结果存入临时变量T2
-(*, E, F, T3)  // 将E和F相乘，结果存入临时变量T3
-(/, G, H, T4)  // 将G除以H，结果存入临时变量T4
+//运行结果：
+{"int", "_", "_", "a"},
+{"=", "5", "_", "a"},
+{"int", "_", "_", "b"},
+{"=", "10", "_", "b"},
+{"+", "a", "2", "t1"},
+{"-", "b", "t1", "b"},
+{"ARRAY", "20", "_", "_"},
+{"ARRAY_ASSIGN", "arr", "5", "b"},
+{"*", "a", "b", "t1"},
+{"+", "t1", "10", "t2"},
+{"=", "t2", "_", "c"},
+{"JUMP_FALSE", ">", "-", "L1"},
+{"-", "a", "1", "t1"},
+{"=", "t1", "_", "a"},
+{"LABEL", "-", "-", "L1"},
+{"LABEL", "-", "-", "L2"},
+{"JUMP_FALSE", "a", "-", "L3"},
+{"=", "b", "_", "a"},
+{"JMUP", "-", "-", "L2"},
+{"LABEL", "-", "-", "L3"},
+{"LABEL", "-", "-", "L4"},
+{"JUMP_FALSE", "<", "-", "L5"},
+{"+", "i", "1", "t1"},
+{"=", "t1", "_", "i"},
+{"LABEL", "-", "-", "L2"},
+{"+", "i", "1", "t1"},
+{"=", "i", "t1", "t2"},
+{"JUMP", "-", "-", "L4"},
+{"LABEL", "-", "-", "L5"},
+{"function_begin", "int", "-", "sum"},
+{"param", "-", "-", "x"},
+{"param", "-", "-", "y"},
+{"return", "x", "-", "-"},
+{"function_end", "sum", "-", "-"},
+{"int", "_", "_", "result"},
+{"arg", "a", "-", "-"},
+{"call", "sum", "1", "-"},
 
 
-//********************************************if**********************************************
+//数组第一个版本 支持赋值  声明 
 
+#include <iostream>
+#include <vector>
+#include <map>
+#include <string>
+#include <stack>
+#include <sstream>
+#include <stdlib.h>
+using namespace std;
 
-if (A&&B&&(C>D)){
-
-	if(A < B) break;
-	else F=1;
-}
-else if(!A||!B) G= G-1;
-else G = G + 1
-
-// 外层条件部分
-(JUMP_FALSE, A, , L1)
-(JUMP_FALSE, B, , L1)
-(>, C, D, t0)
-(JUMP_FALSE, t0, , L1)
-
-// 内层 if-else 结构
-(<, A, B, t1)
-(JUMP_FALSE, t1, , L2)
-(BREAK, , , )
-(JUMP, , , L3)
-(LABEL, , , L2)
-(=, 1, , F)
-(LABEL, , , L3)
-(JUMP, , , L4)
-
-// 外层 else if 结构
-(JUMP_FALSE, !A, , L5)
-(JUMP, , , L6)
-(LABEL, , , L5)
-(JUMP_FALSE, !B, , L1)
-(LABEL, , , L6)
-(-, G, 1, t2)
-(=, t2, , G)
-(JUMP, , , L4)
-
-// 外层 else 结构
-(LABEL, , , L1)
-(+, G, 1, t3)
-(=, t3, , G)
-
-// 结束标签
-(LABEL, , , L4)
-
-if (A&&B&&(C>D)){
-
-	if(A>B)break;
-	else continue;
-}
-else G = G + 1
-
-// 外层条件部分
-(JUMP_FALSE, A, , L1)
-(JUMP_FALSE, B, , L1)
-(>, C, D, t0)
-(JUMP_FALSE, t0, , L1)
-
-// 内层 if-else 结构
-(>, A, B, t1)
-(JUMP_FALSE, t1, , L2)
-(BREAK, , , )
-(JUMP, , , L3)
-(LABEL, , , L2)
-(CONTINUE, , , )
-(JUMP, , , L3)
-(LABEL, , , L3)
-(JUMP, , , L4)
-
-// 外层 else 结构
-(LABEL, , , L1)
-(+, G, 1, t2)
-(=, t2, , G)
-
-// 结束标签
-(LABEL, , , L4)
-
-//**************************************for语句******************************
-
-for(int i = a+b*2;i<=c+d+10;i++){
-	if(h>g) p=p+1;
-}
-
-// 初始化部分
-(*, b, 2, t0)
-(+, a, t0, i)
-
-// 条件检查部分
-(LABEL, , , L0)
-(+, c, d, t1)
-(+, t1, 10, t2)
-(<=, i, t2, t3)
-(JUMP_FALSE, t3, , L1)
-
-// 循环体部分
-(>, h, g, t4)
-(JUMP_FALSE, t4, , L2)
-(+, p, 1, t5)
-(=, t5, , p)
-(LABEL, , , L2)
-
-// 增量部分
-(+, i, 1, t6)
-(=, t6, , i)
-(JUMP, , , L0)
-
-// 循环结束
-(LABEL, , , L1)
-
-//*************************************while********************************
-
-// 条件检查部分
-(LABEL, , , L0)
-(+, c, d, t0)
-(+, t0, 10, t1)
-(<=, i, t1, t2)
-(JUMP_FALSE, t2, , L1)
-
-// 循环体部分
-(+, i, 1, t3)
-(=, t3, , i)
-(+, p, 1, t4)
-(=, t4, , p)
-
-// 跳转回条件检查位置
-(JUMP, , , L0)
-
-// 循环结束
-(LABEL, , , L1)
-
-
-//************************************struct********************************
-
-struct Point {
-    int x;
-    int y;
+struct token {
+    string TokenA;
+    int TokenB;
 };
 
-struct Point p1;
-p1.x = 5;
-p1.y = 10;
+struct quaternion {
+    string op;      // 操作符
+    string opt1;    // 操作数1
+    string opt2;    // 操作数2
+    string result;  // 结果
+};
 
-if (p1.x > p1.y) {
-    p1.x = p1.x + 1;
-} else {
-    p1.y = p1.y + 1;
+vector<token> Token;        // 全局变量，用来存储分析好的token序列
+vector<quaternion> Quaternion; // 全局变量，用来存储生成的四元式序列
+
+map<string, int> K;  // 关键字
+map<string, int> P;  // 界符
+map<string, int> OP; // 操作符优先级
+
+void iniK() {
+    K["int"] = 1;
+    K["float"] = 2;
+    K["void"] = 3;
+    K["double"] = 4;
+    K["bool"] = 5;
+    K["for"] = 6;
+    K["while"] = 7;
+    K["if"] = 8;
+    K["else"] = 9;
+    K["do"] = 10;
+    K["break"] = 11;
+    K["main"] = 12;
+    K["return"] = 13;
+    K["string"] = 14;
+    K["char"] = 15;
+    K["struct"] = 16;
+    K["continue"] = 17;
 }
 
-// 结构体声明部分
-(STRUCT, , , Point)
-(DECL, int, , Point.x)
-(DECL, int, , Point.y)
+void iniP() {
+    P["+"] = 1;
+    P["-"] = 2;
+    P["*"] = 3;
+    P["/"] = 4;
+    P[","] = 5;
+    P[":"] = 6;
+    P[";"] = 7;
+    P["("] = 8;
+    P[")"] = 9;
+    P["{"] = 10;
+    P["}"] = 11;
+    P["["] = 12;
+    P["]"] = 13;
+    P["+="] = 14;
+    P["-="] = 15;
+    P["++"] = 16;
+    P["--"] = 17;
+    P["!"] = 18;
+    P["&"] = 19;
+    P["&&"] = 20;
+    P["||"] = 21;
+    P["%"] = 22;
+    P["~"] = 23;
+    P["="] = 24;
+    P["!="] = 25;
+    P[">"] = 26;
+    P["<"] = 27;
+    P[">="] = 28;
+    P["<="] = 29;
+    P["|"] = 30;
+    P["^"] = 31;
+    P["'"] = 32;
+    P["\""] = 33;
+}
 
-// 变量声明部分
-(DECL, struct Point, , p1)
+void iniOP() {
+    OP["+"] = 1;
+    OP["-"] = 1;
+    OP["*"] = 2;
+    OP["/"] = 2;
+    OP["+="] = 1;
+    OP["-="] = 1;
+    OP["*="] = 2;
+    OP["/="] = 2;
+    OP["("] = 0;
+}
 
-// 变量赋值部分
-(=, 5, , p1.x)
-(=, 10, , p1.y)
+void addToken(string TokenA, int TokenB) {
+    Token.push_back({TokenA, TokenB});
+}
 
-// 条件部分
-(>, p1.x, p1.y, t1)
-(JUMP_FALSE, t1, , L1)
+void addQuaternion(string op, string opt1, string opt2, string result) {
+    Quaternion.push_back({op, opt1, opt2, result});
+}
 
-// 条件为真时的操作部分
-(+, p1.x, 1, t2)
-(=, t2, , p1.x)
-(JUMP, , , L2)
+vector<string> infixToPostfix(vector<token>& expr) {
+    stack<string> opStack;
+    vector<string> postfix;
+    for (auto& t : expr) {
+        if (t.TokenB == 0) {
+            postfix.push_back(t.TokenA);
+        } else if (t.TokenA == "(") {
+            opStack.push(t.TokenA);
+        } else if (t.TokenA == ")") {
+            while (!opStack.empty() && opStack.top() != "(") {
+                postfix.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.pop(); // pop "("
+        } else {
+            while (!opStack.empty() && OP[opStack.top()] >= OP[t.TokenA]) {
+                postfix.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.push(t.TokenA);
+        }
+    }
+    while (!opStack.empty()) {
+        postfix.push_back(opStack.top());
+        opStack.pop();
+    }
+    return postfix;
+}
 
-// 条件为假时的操作部分
-(LABEL, , , L1)
-(+, p1.y, 1, t3)
-(=, t3, , p1.y)
+string evaluatePostfix(vector<string>& postfix) {
+    stack<string> evalStack;
+    int tempCount = 1;
+    for (auto& token : postfix) {
+        if (OP.find(token) == OP.end()) {
+            evalStack.push(token);
+        } else {
+            string op2 = evalStack.top(); evalStack.pop();
+            string op1 = evalStack.top(); evalStack.pop();
+            string tempVar = "t" + to_string(tempCount++);
+            addQuaternion(token, op1, op2, tempVar);
+            evalStack.push(tempVar);
+        }
+    }
+    return evalStack.top();
+}
 
-// 条件结束部分
-(LABEL, , , L2)
+void parse(string code) {
+    // 变量声明
+    addToken("int", K["int"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("5", 0);
+    addToken(";", P[";"]);
+    
+    addToken("int", K["int"]);
+    addToken("b", 0);
+    addToken("=", P["="]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
+    
+    addToken("b", 0);
+    addToken("-=", P["-="]);
+    addToken("a", 0);
+    addToken("+", P["+"]);
+    addToken("2", 0);
+    addToken(";", P[";"]);
 
-/////////////////////////////////////struct转为汇编 ？？？ 需要自己设计
-section .data
-    p1_x dw 0
-    p1_y dw 0
+    // 数组声明与访问
+    addToken("int", K["int"]);
+    addToken("arr", 0);
+    addToken("[", P["["]);
+    addToken("20", 0);
+    addToken("]", P["]"]);
+    addToken(";", P[";"]);
 
-section .code
-    ; 初始化 p1.x = 5
-    mov ax, 5
-    mov [p1_x], ax
+    addToken("arr", 0);
+    addToken("[", P["["]);
+    addToken("5", 0);
 
-    ; 初始化 p1.y = 10
-    mov ax, 10
-    mov [p1_y], ax
+    addToken("]", P["]"]);
+    addToken("=", P["="]);
+    addToken("b", 0);
+    addToken(";", P[";"]);
 
-    ; 条件判断: if (p1.x > p1.y)
-    mov ax, [p1_x]
-    cmp ax, [p1_y]
-    jle ELSE_PART
+    // 赋值和运算
+    addToken("c", 0);
+    addToken("=", P["="]);
+    addToken("a", 0);
+    addToken("*", P["*"]);
+    addToken("b", 0);
+    addToken("+", P["+"]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
 
-    ; if 部分: p1.x = p1.x + 1
-    mov ax, [p1_x]
-    add ax, 1
-    mov [p1_x], ax
-    jmp END_IF
+    // if 语句
+    addToken("if", K["if"]);
+    addToken("(", P["("]);
+    addToken("a", 0);//////**********************************************************
+    addToken(">", P[">"]);
+    addToken("b", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("a", 0);
+    addToken("-", P["-"]);
+    addToken("1", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
 
-ELSE_PART:
-    ; else 部分: p1.y = p1.y + 1
-    mov ax, [p1_y]
-    add ax, 1
-    mov [p1_y], ax
+    // while 循环
+    addToken("while", K["while"]);
+    addToken("(", P["("]);
+    addToken("a", 0);
 
-END_IF:
-    ; 程序结束标记（如果需要）
-    nop
-//***************************************************样例 仅供参考
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+        addToken("b", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+    // for 循环
+    addToken("for", K["for"]);
+    addToken("(", P["("]);
+    addToken("int", K["int"]);
+    addToken("i", 0);
+    addToken("=", P["="]);
+    addToken("0", 0);
+    addToken(";", P[";"]);
+    addToken("i", 0);
+    addToken("<", P["<"]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
+    addToken("i", 0);
+    addToken("=", P["="]);
+    addToken("i", 0);
+    addToken("+", P["+"]);
+    addToken("1", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("i", 0);
+    addToken("=", P["="]);
+    addToken("i", 0);
+    addToken("+", P["+"]);
+    addToken("1", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+// 函数声明
+    addToken("int", K["int"]);
+    addToken("sum", 0);
+    addToken("(", P["("]);
+    addToken("int", K["int"]);
+    addToken("x", 0);
+    addToken(",", P[","]);
+    addToken("int", K["int"]);
+    addToken("y", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("return", K["return"]);
+    addToken("x", 0);
+
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+    // 函数调用
+    addToken("int", K["int"]);
+    addToken("result", 0);
+    addToken(";", P[";"]);
+    addToken("sum", 0);
+    addToken("(", P["("]);
+    addToken("a", 0);
+    addToken(")", P[")"]);
+    addToken(";", P[";"]);
+}
+void generateQuaternions() {
+    size_t i = 0;
+    int labelCount = 1;
+    while (i < Token.size()) {        
+        //cout<<"token"<<Token.size()<<"   "<<Token[i].TokenA<<i<<endl;
+        if (Token[i].TokenA == "int") {
+            i++;
+            if (Token[i + 1].TokenA == "[") { // 检查是否为数组定义
+                string varName = Token[i].TokenA;
+                i += 2; // 跳过数组名和"["
+                string arraySize = Token[i].TokenA;
+                addQuaternion("ARRAY", arraySize, "_", "_");
+                i += 2; // 跳过数组大小和"]"
+                i++; // 跳过分号
+            } else if (Token[i + 1].TokenA == "(") { // 检查是否为函数定义
+                string funcName = Token[i].TokenA;
+                addQuaternion("function_begin", "int", "-", funcName);
+                i += 2; // 跳过函数名和"("
+                while (Token[i].TokenA != ")") {
+                    if (Token[i].TokenA == "int") {
+                        i++; // 跳过参数类型
+                        string paramName = Token[i].TokenA;
+                        addQuaternion("param", "-", "-", paramName);
+                        i++; // 跳过参数名
+                        if (Token[i].TokenA == ",") i++; // 跳过逗号
+                    }
+                }
+                i++; // 跳过")"
+                if (Token[i].TokenA == "{") {
+                    i++; // 跳过"{"
+                    while (Token[i].TokenA != "}") {
+                        if (Token[i].TokenA == "int") {
+                            i++;
+                            string varName = Token[i].TokenA;
+                            addQuaternion("int", "_", "_", varName);
+                            i++;
+                            if (Token[i].TokenA == "=") {
+                                i++;
+                                vector<token> expr;
+                                while (Token[i].TokenA != ";") {
+                                    expr.push_back(Token[i]);
+                                    i++;
+                                }
+                                vector<string> postfix = infixToPostfix(expr);
+                                string result = evaluatePostfix(postfix);
+                                addQuaternion("=", result, "_", varName);
+                                i++; // 跳过";"
+                            }
+                        } else if (Token[i].TokenA == "return") {
+                            i++;
+                            string returnVar = Token[i].TokenA;
+                            addQuaternion("return", returnVar, "-", "-");
+                            i++; // 跳过返回变量
+                            i++; // 跳过";"
+                        }
+                    }
+                    addQuaternion("function_end", funcName, "-", "-");
+                }
+                i++; // 跳过大括号
+            } else {
+                // 变量定义和表达式处理
+                while (i < Token.size() && Token[i].TokenA != ";") {
+                    if (Token[i].TokenB == 0) {
+                        string varName = Token[i].TokenA;
+                        addQuaternion("int", "_", "_", varName);
+                        i++;
+                        if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
+                            string op = Token[i].TokenA;
+                            i++;
+                            vector<token> expr;
+                            while (Token[i].TokenA != "," && Token[i].TokenA != ";") {
+                                expr.push_back(Token[i]);
+                                i++;
+                            }
+                            vector<string> postfix = infixToPostfix(expr);
+                            string result = evaluatePostfix(postfix);
+                            if (op == "=") {
+                                addQuaternion("=", result, "_", varName);
+                            } else {
+                                string basicOp = op.substr(0, 1);
+                                addQuaternion(basicOp, varName, result, varName);
+                            }
+                        }
+                        if (Token[i].TokenA == ",") {
+                            i++;
+                        }
+                    }
+                }
+                i++; // 跳过分号
+            }
+        } else if (Token[i].TokenA == "if") {
+            i++;
+            if (Token[i].TokenA == "(") {
+                i++;
+                vector<token> expr;
+                while (Token[i].TokenA != ")") {
+                    expr.push_back(Token[i]);
+                    i++;
+                }
+                vector<string> postfix = infixToPostfix(expr);
+                string result = evaluatePostfix(postfix);
+                string falseLabel = "L" + to_string(labelCount++);
+                addQuaternion("JUMP_FALSE", result, "-", falseLabel);
+                i++; // 跳过")"
+                if (Token[i].TokenA == "{") {
+                    i++; // 跳过"{"
+                    while (Token[i].TokenA != "}") {
+                        if (Token[i].TokenB == 0) {
+                            string varName = Token[i].TokenA;
+                            i++;
+                            if (Token[i].TokenA == "=") {
+                                i++;
+                                vector<token> expr;
+                                while (Token[i].TokenA != ";") {
+                                    expr.push_back(Token[i]);
+                                    i++;
+                                }
+                                vector<string> postfix = infixToPostfix(expr);
+                                string result = evaluatePostfix(postfix);
+                                addQuaternion("=", result, "_", varName);
+                                i++; // 跳过";"
+                            }
+                        }
+                    }
+                    addQuaternion("LABEL", "-", "-", falseLabel);
+                    i++; // 跳过"}"
+                }
+            }
+        }  else if (Token[i].TokenA == "while") {
+            i++;
+            if (Token[i].TokenA == "(") {
+                i++;
+                vector<token> expr;
+                while (Token[i].TokenA != ")") {
+                    expr.push_back(Token[i]);
+                    i++;
+                }
+                string startLabel ="L" + to_string(labelCount++);
+                addQuaternion("LABEL", "-", "-", startLabel);
+                vector<string> postfix = infixToPostfix(expr);
+                string result = evaluatePostfix(postfix);
+                string falseLabel = "L" + to_string(labelCount++);
+                addQuaternion("JUMP_FALSE", result, "-", falseLabel);
+                i++; // 跳过")"
+                if (Token[i].TokenA == "{") {
+                    i++; // 跳过"{"
+                    while (Token[i].TokenA != "}") {
+                        if (Token[i].TokenB == 0) {
+                            string varName = Token[i].TokenA;
+                            i++;
+                            if (Token[i].TokenA == "=") {
+                                i++;
+                                vector<token> expr;
+                                while (Token[i].TokenA != ";") {
+                                    expr.push_back(Token[i]);
+                                    i++;
+                                }
+                                vector<string> postfix = infixToPostfix(expr);
+                                string result = evaluatePostfix(postfix);
+                                addQuaternion("=", result, "_", varName);
+                                i++; // 跳过";"
+                            }
+                        }
+                    }
+                    addQuaternion("JMUP", "-", "-", startLabel);
+                    addQuaternion("LABEL", "-", "-", falseLabel);
+                    i++; // 跳过"}"
+                }
+            }
+        } 
+        else if (Token[i].TokenA == "for") {
+            i++;
+            if (Token[i].TokenA == "(") {
+                i++;
+                i++;
+                // Initialization part
+                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
+
+                vector<token> initExpr;
+                while (Token[i].TokenA != ";") {
+                    initExpr.push_back(Token[i]);
+                    i++;
+                }
+                vector<string> initPostfix = infixToPostfix(initExpr);
+                evaluatePostfix(initPostfix);
+                i++; // 跳过";"
+                                                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
+
+                // Condition check part
+                string labelStart = "L" + to_string(labelCount++);
+                string labelEnd = "L" + to_string(labelCount++);
+                addQuaternion("LABEL", "-", "-", labelStart);
+                vector<token> condExpr;
+                while (Token[i].TokenA != ";") {
+                    condExpr.push_back(Token[i]);
+                    i++;
+                }
+                vector<string> condPostfix = infixToPostfix(condExpr);
+                string condResult = evaluatePostfix(condPostfix);
+                addQuaternion("JUMP_FALSE", condResult, "-", labelEnd);
+                i++; // 跳过";"
+                //cout<<"跳过第二个分号"<<"此时Token[i].TokenA:"<<Token[i].TokenA<<Token[i+1].TokenA<<Token[i+2].TokenA<<"i:"<<i<<endl;
+
+                // Increment part
+                vector<token> incExpr;
+                size_t incStart = i;
+                while (Token[i].TokenA != ")") {
+                    incExpr.push_back(Token[i]);
+                    i++;
+                }
+                i++; // 跳过")"
 
 
+                // Loop body
+                if (Token[i].TokenA == "{") {
+                    i++; // 跳过"{"
+                    while (Token[i].TokenA != "}") {
+                        if (Token[i].TokenB == 0) {
+                            string varName = Token[i].TokenA;
+                            i++;
+                            if (Token[i].TokenA == "=") {
+                                i++;
+                                vector<token> bodyExpr;
+                                while (Token[i].TokenA != ";") {
+                                    bodyExpr.push_back(Token[i]);
+                                    i++;
+                                }
+                                vector<string> bodyPostfix = infixToPostfix(bodyExpr);
+                                string bodyResult = evaluatePostfix(bodyPostfix);
+                                addQuaternion("=", bodyResult, "_", varName);
+                                i++; // 跳过";"
+                            }
+                        }
+                    }
+                    //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
 
+                    addQuaternion("LABEL", "-", "-", "L2");
+                    i++; // 跳过"}"
+                    //cout<<"此时Token[i].TokenA     :"<<Token[i].TokenA<<"i:"<<i<<endl;
 
+                }
+                int tmp = i;
+                //cout<<"执行完循环体此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                // Increment part
+                incExpr.clear();
+                i = incStart;
+                //cout<<"执行完循环体返回到增量此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                while (Token[i].TokenA != ")") {
+                    incExpr.push_back(Token[i]);
+                    i++;
+                }
+                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                //i+=2;
+                vector<string> incPostfix = infixToPostfix(incExpr);
+                evaluatePostfix(incPostfix);
+                addQuaternion("JUMP", "-", "-", labelStart);
+                addQuaternion("LABEL", "-", "-", labelEnd);
+                i++; // 跳过")"
+                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
+                i = tmp ;
 
+            }
+            
+        } else if (Token[i].TokenB == 0) {
+            string varName = Token[i].TokenA;
+            i++;
+            if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
+                string op = Token[i].TokenA;
+                i++;
+                vector<token> expr;
+                while (Token[i].TokenA != ";") {
+                    expr.push_back(Token[i]);
+                    i++;
+                }
+                vector<string> postfix = infixToPostfix(expr);
+                string result = evaluatePostfix(postfix);
+                if (op == "=") {
+                    addQuaternion("=", result, "_", varName);
+                } else {
+                    string basicOp = op.substr(0, 1);
+                    addQuaternion(basicOp, varName, result, varName);
+                }
+                i++; // 跳过分号
+            } else if (Token[i].TokenA == "[") { // 数组访问或赋值
+                i++; // 跳过"["
+                string index = Token[i].TokenA;
+                i++; // 跳过索引
+                if (Token[i].TokenA == "]") {
+                    i++; // 跳过"]"
+                    if (Token[i].TokenA == "=") {
+                        i++; // 跳过"="
+                        string value = Token[i].TokenA;
+                        addQuaternion("ARRAY_ASSIGN", varName, index, value);
+                        i++; // 跳过值
+                        i++; // 跳过";"
+                    } else {
+                        addQuaternion("ARRAY_ACCESS", varName, index, "t" + to_string(labelCount++));
+                        i++; // 跳过分号
+                    }
+                }
+            } else if (Token[i].TokenA == "(") {
+                i++; // 跳过"("
+                //cout<<"token"<<Token[i].TokenA<<i<<endl;
+                vector<string> args;
+                while (Token[i].TokenA != ")") {
+                    if (Token[i].TokenB == 0) {
+                        args.push_back(Token[i].TokenA);
+                        i++;
+                        if (Token[i].TokenA == ",") i++; // 跳过逗号
+                    }
+                }
+                //cout<<"token"<<Token[i].TokenA<<i<<endl;
+                for (const auto& arg : args) {
+                    addQuaternion("arg", arg, "-", "-");
+                }
+                addQuaternion("call", varName, to_string(args.size()), "-");
+                i++; // 跳过")"
+                i++; // 跳过";"
+            }
+        }
+    }
+}
 
+void printQuaternions() {
+    for (const auto& q : Quaternion) {
+        cout << "{" <<"\""<< q.op <<"\""<< ", "<<"\"" << q.opt1<<"\"" << ", "<<"\"" << q.opt2 <<"\""<< ", "<<"\"" << q.result<<"\"" << "}"<<","<<endl;
+    }
+}
 
-(DECL, int, , a)
-(=, 5, , a)
-(DECL, int, , b)
-(=, 10, , b)
-(=, 3.14, , f)
-(DECL, int, , c)
-(DECL, int, , d)
-(DECL, int, , =)
-(DECL, int, , 20)
-(FUNC, int, , sum)
-(PARAM, int, , x)
-(PARAM, int, , y)
-(+, x, y, t0)
-(IF, a, b, t1)
-(=, a, , a)
-(-, a, b, t2)
-(FOR, int, i, 0)
-(IF, i, 10, t3)
-(i, ;, , )
-(END_FOR, , , )
-(=, a, , a)
-(+, a, i, t4)
-(FUNC, int, , main)
-(=, 10, , x)
-(=, 20, , y)
-(=, sum, , c)
-(STRUCT, , , Point)
-(DECL, int, , x)
-(DECL, int, , y)
+int main() {
+    iniK();
+    iniP();
+    iniOP();
 
-二：
- token:
-       {"int", 1}, {"main", 12}, {"(", 8}, {")", 9}, {"{", 10},
-        {"int", 1}, {"a", 1}, {",", 5}, {"b", 1}, {",", 5}, {"c", 1}, {";", 7},
-        {"a", 1}, {"=", 24}, {"b", 1}, {"*", 3}, {"(", 8}, {"1", 1}, {"+", 1}, {"d", 1}, {"*", 3}, {"(", 8}, {"2", 1}, {"+", 1}, {"3", 1}, {")", 9}, {")", 9}, {";", 7},
-        {"return", 13}, {"0", 1}, {";", 7}, {"}", 11}
-
-qua:
-(FUNC, int, , main)
-(DECL, int, , a)
-(DECL, int, , b)
-(DECL, int, , c)
-(+, 2, 3, t0)
-(*, d, t0, t1)
-(+, 1, t1, t2)
-(*, b, t2, t3)
-(=, t3, , a)
-(RETURN, , , 0)
-(END_FUNC, , , main)
+    string code = "int a = 5, b = 10;    b -= a + 2;    int arr[20]; arr[5] = b;";
+    parse(code);
+    generateQuaternions();
+    printQuaternions();
+    system("pause");
+    return 0;
+}
