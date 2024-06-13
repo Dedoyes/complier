@@ -4,17 +4,22 @@ pos_defstmt -> defstmt pos_defstmt | defstmt
 type -> bool | char | int | float | double | string | void
 stmt -> defstmt stmt | prostmt stmt | defstmt | prostmt | empty
 defstmt -> type var ; | type var = expr ;
-defstmt -> type var [ integrate ] ;
+defstmt -> type var [ expr ] ;
 defstmt -> type var ( table ) { stmt } defstmt
 defstmt -> type var ( ) { stmt } defstmt
 defstmt_pos -> type var ; defstmt_pos | type var ;
 defstmt -> struct type { defstmt_pos } ; defstmt
 defstmt -> struct type { defstmt_pos } ;
 prostmt -> for ( defstmt expr ; expr ) { stmt } stmt
+prostmt -> for ( defstmt expr ; expr ) { stmt }
 prostmt -> if ( expr ) { stmt } stmt elifstmt stmt
 prostmt -> if ( expr ) { stmt }
+stmt -> if ( expr ) { prostmt } stmt
 stmt -> if ( expr ) { prostmt }
+stmt -> if ( expr ) { defstmt } stmt
 stmt -> if ( expr ) { defstmt }
+stmt -> stmt prostmt
+stmt -> stmt defstmt
 elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr ;
@@ -25,6 +30,8 @@ protable -> expr | var | expr , protable | var , protable | empty
 table -> empty | type var , table | type var
 expr -> ( expr ) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr ropt1 | var | chartype | stringtype
 expr -> var [ expr ]
+expr -> expr , expr
+expr -> var ( expr )
 opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | != | <= | >=
 lopt1 -> ++ | ! | -- | - | +
 ropt1 -> ++ | --
