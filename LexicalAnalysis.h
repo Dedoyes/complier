@@ -97,6 +97,7 @@ struct Lexical {
         P["*="] = 33;
         P["/="] = 33;
         P["=="] = 34;
+        P["$"] = 35;
     }
 
     bool isK(string S) {
