@@ -1,3 +1,64 @@
+
+
+
+
+
+string evaluatePostfix(vector<string>& postfix) {
+    stack<string> evalStack;
+    int tempCount = 1;
+    for (const auto& token : postfix) {
+        if (OP.find(token) == OP.end()) {
+            evalStack.push(token);
+        } else {
+            string op2 = evalStack.top(); evalStack.pop();
+            string op1 = evalStack.top(); evalStack.pop();
+            string expr = token + " " + op1 + " " + op2;
+            string tempVar;
+            if (subExprMap.find(expr) != subExprMap.end()) {
+                tempVar = subExprMap[expr];
+            } else {
+                tempVar = "t" + to_string(tempCount++);
+                addQuaternion(token, op1, op2, tempVar);
+                subExprMap[expr] = tempVar;
+            }
+            evalStack.push(tempVar);
+        }
+    }
+    return evalStack.top();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //github原版 
 #include <iostream>
 #include <vector>
