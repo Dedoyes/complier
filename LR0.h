@@ -53,7 +53,7 @@ struct closure {                        // 项目集闭包
                 continue;
             }
             return *it1 < *it2;
-        };
+        }
         return false;
     }
     bool operator == (const closure &clo) const {
@@ -83,10 +83,11 @@ struct closure {                        // 项目集闭包
 
 const int CLOSURE_MAX_CNT = 1e5 + 5;
 
-int closureCnt;                                 // 内核项闭包时间戳
+int closureCnt;                                  // 内核项闭包时间戳
 set <closure> lawI;                              // 内核项闭包集合
-map <closure, int> closureF;                    // 内核项闭包离散化函数
-map <string, int> closureG[CLOSURE_MAX_CNT];    // 内核项闭包图
+map <closure, int> closureF;                     // 内核项闭包离散化函数
+map <string, int> closureG[CLOSURE_MAX_CNT];     // 内核项闭包图
+closure vecClo[CLOSURE_MAX_CNT];
 map <closure, bool> dfsVis;
 
 void closureDfs (closure &u, closure &ret) {
@@ -106,12 +107,14 @@ void closureDfs (closure &u, closure &ret) {
         if (!dfsVis[temp])
             closureDfs(temp, ret);
     }
+    //dfsVis[u] = false;
 }
 
 closure borderClousre (closure &clo) {          // 求出内核项的全闭包
     closure ret = clo;
     auto it = ret.close.begin ();
     closureDfs (clo, ret);
+    dfsVis.clear ();
     return ret;
 }
 
@@ -122,6 +125,7 @@ void bfs (closure &clo) {
     queue <closure> q;
     q.push (clo);
     closureF[clo] = ++closureCnt;
+    vecClo[closureCnt] = clo;
     cloVis[clo] = true;
     lawI.insert (clo);
     while (!q.empty ()) {
@@ -147,8 +151,10 @@ void bfs (closure &clo) {
             } else {
                 if (v.close.size ()) {
                     lawI.insert (v);
-                    if (!closureF.count (v))
+                    if (!closureF.count (v)) {
                         closureF[v] = ++closureCnt;
+                        vecClo[closureCnt] = v;
+                    }
                     cout << "case1" << endl;
                     cout << "closureCnt = " << closureCnt << endl;
                     if (!cloVis[v]) {
@@ -175,8 +181,10 @@ void bfs (closure &clo) {
         if (v.close.size ()) {
             cout << "case2" << endl;
             lawI.insert (v);
-            if (!closureF.count (v))
+            if (!closureF.count (v)) {
                 closureF[v] = ++closureCnt;
+                vecClo[closureCnt] = v;
+            }
             if (!cloVis[v]) {
                 q.push (v);
                 cloVis[v] = true;
@@ -191,20 +199,80 @@ void bfs (closure &clo) {
     }
 }
 
+struct Action {
+    string type;
+    int pos;
+    Action () {}
+    Action (string _type, int _pos) {
+        type = _type; pos = _pos;
+    }
+};
+
+map <string, Action> act[CLOSURE_MAX_CNT];
+
+void buildTable () {
+    for (int i = 1; i <= closureCnt; i++) {
+        for (auto itm : vecClo[i].close) {
+            int pos = itm.pos;
+            if (pos == itm.st.Vt.size ()) {
+                string tempVn = itm.st.Vn;
+                for (auto x : follow[tempVn]) {
+                    act[i][x].pos = law.idx[itm.st];
+                    act[i][x].type = "protocal";
+                }
+                continue;
+            }
+            string tempVt = itm.st.Vt[pos];
+            if (nature[tempVt] == 2) {
+                act[i][tempVt].pos = closureG[i][tempVt];
+                act[i][tempVt].type = "move";
+            }
+        }
+    }
+    act[2]["$"].type = "accept";
+}
+
 bool syntaxCacu () {
     stack <int> stk;
     stack <string> charStk;
-    programe += "$";
-    stk.push (0);
+    stk.push (1);
     charStk.push ("$");
-    int pos = 0, u = 1;
-    for (; pos < programe.size (); ) {
+    int state = 1;
+    buildTable ();
+    for (auto x : WordFinal.Token) {
+        string type = x.TokenA;
+        int pos = x.TokenB;
+        string inStack;
+        if (type == "K") {
+            inStack = WordFinal.revFind (x);
+            state = closureG[state][inStack];
+        } else if (type == "P") {
+            inStack = WordFinal.revFind (x);
+            state = closureG[state][inStack];
+        } else if (type == "I") {
+            inStack = "var";
+            state = closureG[state][inStack];
+        } else if (type == "C1") {
+            inStack = "integrate";
+            state = closureG[state][inStack];
+        } else if (type == "C2") {
+            inStack = "floatnum";
+            state = closureG[state][inStack];
+        } else if (type == "CT") {
+            inStack = "chartype";
+            state = closureG[state][inStack];
+        } else {
+            inStack = "stringtype";
+            state = closureG[state][inStack];
+        }
+        while (true) {
 
+        }
     }
 }
 
 bool LR0 () {
-    cout << "no problem" << endl;
+    cout << "LR0 () : " << endl;
     closure start;
     item It;
     It.pos = 0;
@@ -214,9 +282,12 @@ bool LR0 () {
     start.close.insert (It);
     bfs (start);
     cout << "cnt = " << closureCnt << endl;
-    return true;
+    for (int i = 1; i <= closureCnt; i++) {
+        cout << "clo[" << i << "] = ";
+        vecClo[i].print ();
+    }
+    closureG[2]["$"] = ++closureCnt;
+    return syntaxCacu ();
 }
 
 #endif //TEAM_COMPLIER_LR0_H
-
-
