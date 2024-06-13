@@ -1,50 +1,4 @@
-//总体第一个版本
-//目前支持 int = + - * / += -= ... if for while 数组 函数声明 调用 
- 
-//但不支持语句嵌套
-
-//运行结果：
-{"int", "_", "_", "a"},
-{"=", "5", "_", "a"},
-{"int", "_", "_", "b"},
-{"=", "10", "_", "b"},
-{"+", "a", "2", "t1"},
-{"-", "b", "t1", "b"},
-{"ARRAY", "20", "_", "_"},
-{"ARRAY_ASSIGN", "arr", "5", "b"},
-{"*", "a", "b", "t1"},
-{"+", "t1", "10", "t2"},
-{"=", "t2", "_", "c"},
-{"JUMP_FALSE", ">", "-", "L1"},
-{"-", "a", "1", "t1"},
-{"=", "t1", "_", "a"},
-{"LABEL", "-", "-", "L1"},
-{"LABEL", "-", "-", "L2"},
-{"JUMP_FALSE", "a", "-", "L3"},
-{"=", "b", "_", "a"},
-{"JMUP", "-", "-", "L2"},
-{"LABEL", "-", "-", "L3"},
-{"LABEL", "-", "-", "L4"},
-{"JUMP_FALSE", "<", "-", "L5"},
-{"+", "i", "1", "t1"},
-{"=", "t1", "_", "i"},
-{"LABEL", "-", "-", "L2"},
-{"+", "i", "1", "t1"},
-{"=", "i", "t1", "t2"},
-{"JUMP", "-", "-", "L4"},
-{"LABEL", "-", "-", "L5"},
-{"function_begin", "int", "-", "sum"},
-{"param", "-", "-", "x"},
-{"param", "-", "-", "y"},
-{"return", "x", "-", "-"},
-{"function_end", "sum", "-", "-"},
-{"int", "_", "_", "result"},
-{"arg", "a", "-", "-"},
-{"call", "sum", "1", "-"},
-
-
-//数组第一个版本 支持赋值  声明 
-
+//github原版 
 #include <iostream>
 #include <vector>
 #include <map>
@@ -52,6 +6,7 @@
 #include <stack>
 #include <sstream>
 #include <stdlib.h>
+
 using namespace std;
 
 struct token {
@@ -141,18 +96,18 @@ void iniOP() {
     OP["("] = 0;
 }
 
-void addToken(string TokenA, int TokenB) {
+void addToken(const string& TokenA, int TokenB) {
     Token.push_back({TokenA, TokenB});
 }
 
-void addQuaternion(string op, string opt1, string opt2, string result) {
+void addQuaternion(const string& op, const string& opt1, const string& opt2, const string& result) {
     Quaternion.push_back({op, opt1, opt2, result});
 }
 
-vector<string> infixToPostfix(vector<token>& expr) {
+vector<string> infixToPostfix(const vector<token>& expr) {
     stack<string> opStack;
     vector<string> postfix;
-    for (auto& t : expr) {
+    for (const auto& t : expr) {
         if (t.TokenB == 0) {
             postfix.push_back(t.TokenA);
         } else if (t.TokenA == "(") {
@@ -181,7 +136,7 @@ vector<string> infixToPostfix(vector<token>& expr) {
 string evaluatePostfix(vector<string>& postfix) {
     stack<string> evalStack;
     int tempCount = 1;
-    for (auto& token : postfix) {
+    for (const auto& token : postfix) {
         if (OP.find(token) == OP.end()) {
             evalStack.push(token);
         } else {
@@ -195,405 +150,39 @@ string evaluatePostfix(vector<string>& postfix) {
     return evalStack.top();
 }
 
-void parse(string code) {
-    // 变量声明
-    addToken("int", K["int"]);
-    addToken("a", 0);
-    addToken("=", P["="]);
-    addToken("5", 0);
-    addToken(";", P[";"]);
-    
-    addToken("int", K["int"]);
-    addToken("b", 0);
-    addToken("=", P["="]);
-    addToken("10", 0);
-    addToken(";", P[";"]);
-    
-    addToken("b", 0);
-    addToken("-=", P["-="]);
-    addToken("a", 0);
-    addToken("+", P["+"]);
-    addToken("2", 0);
-    addToken(";", P[";"]);
+void parseExpression(size_t& i, int& labelCount);
+void parseExpression_for(size_t& i, int& labelCount);
+void parseBlock(size_t& i, int& labelCount);
+void parseVariableDeclaration(size_t& i);
+void parseIfStatement(size_t& i, int& labelCount);
+void parseWhileStatement(size_t& i, int& labelCount);
+void parseForStatement(size_t& i, int& labelCount);
 
-    // 数组声明与访问
-    addToken("int", K["int"]);
-    addToken("arr", 0);
-    addToken("[", P["["]);
-    addToken("20", 0);
-    addToken("]", P["]"]);
-    addToken(";", P[";"]);
-
-    addToken("arr", 0);
-    addToken("[", P["["]);
-    addToken("5", 0);
-
-    addToken("]", P["]"]);
-    addToken("=", P["="]);
-    addToken("b", 0);
-    addToken(";", P[";"]);
-
-    // 赋值和运算
-    addToken("c", 0);
-    addToken("=", P["="]);
-    addToken("a", 0);
-    addToken("*", P["*"]);
-    addToken("b", 0);
-    addToken("+", P["+"]);
-    addToken("10", 0);
-    addToken(";", P[";"]);
-
-    // if 语句
-    addToken("if", K["if"]);
-    addToken("(", P["("]);
-    addToken("a", 0);//////**********************************************************
-    addToken(">", P[">"]);
-    addToken("b", 0);
-    addToken(")", P[")"]);
-    addToken("{", P["{"]);
-    addToken("a", 0);
-    addToken("=", P["="]);
-    addToken("a", 0);
-    addToken("-", P["-"]);
-    addToken("1", 0);
-    addToken(";", P[";"]);
-    addToken("}", P["}"]);
-
-    // while 循环
-    addToken("while", K["while"]);
-    addToken("(", P["("]);
-    addToken("a", 0);
-
-    addToken(")", P[")"]);
-    addToken("{", P["{"]);
-    addToken("a", 0);
-    addToken("=", P["="]);
-        addToken("b", 0);
-    addToken(";", P[";"]);
-    addToken("}", P["}"]);
-
-    // for 循环
-    addToken("for", K["for"]);
-    addToken("(", P["("]);
-    addToken("int", K["int"]);
-    addToken("i", 0);
-    addToken("=", P["="]);
-    addToken("0", 0);
-    addToken(";", P[";"]);
-    addToken("i", 0);
-    addToken("<", P["<"]);
-    addToken("10", 0);
-    addToken(";", P[";"]);
-    addToken("i", 0);
-    addToken("=", P["="]);
-    addToken("i", 0);
-    addToken("+", P["+"]);
-    addToken("1", 0);
-    addToken(")", P[")"]);
-    addToken("{", P["{"]);
-    addToken("i", 0);
-    addToken("=", P["="]);
-    addToken("i", 0);
-    addToken("+", P["+"]);
-    addToken("1", 0);
-    addToken(";", P[";"]);
-    addToken("}", P["}"]);
-// 函数声明
-    addToken("int", K["int"]);
-    addToken("sum", 0);
-    addToken("(", P["("]);
-    addToken("int", K["int"]);
-    addToken("x", 0);
-    addToken(",", P[","]);
-    addToken("int", K["int"]);
-    addToken("y", 0);
-    addToken(")", P[")"]);
-    addToken("{", P["{"]);
-    addToken("return", K["return"]);
-    addToken("x", 0);
-
-    addToken(";", P[";"]);
-    addToken("}", P["}"]);
-
-    // 函数调用
-    addToken("int", K["int"]);
-    addToken("result", 0);
-    addToken(";", P[";"]);
-    addToken("sum", 0);
-    addToken("(", P["("]);
-    addToken("a", 0);
-    addToken(")", P[")"]);
-    addToken(";", P[";"]);
+void parseIfStatement(size_t& i, int& labelCount) {
+    i++;
+    if (Token[i].TokenA == "(") {
+        i++;
+        vector<token> expr;
+        while (Token[i].TokenA != ")") {
+            expr.push_back(Token[i]);
+            i++;
+        }
+        vector<string> postfix = infixToPostfix(expr);
+        string result = evaluatePostfix(postfix);
+        string tempVar = "t" + to_string(labelCount++);
+        addQuaternion(postfix.back(), postfix[postfix.size() - 3], postfix[postfix.size() - 2], tempVar);
+        string falseLabel = "L" + to_string(labelCount++);
+        addQuaternion("JUMP_FALSE", tempVar, "_", falseLabel);
+        i++; // 跳过")"
+        parseBlock(i, labelCount);
+        addQuaternion("LABEL", "_", "_", falseLabel);
+    }
 }
-void generateQuaternions() {
-    size_t i = 0;
-    int labelCount = 1;
-    while (i < Token.size()) {        
-        //cout<<"token"<<Token.size()<<"   "<<Token[i].TokenA<<i<<endl;
-        if (Token[i].TokenA == "int") {
-            i++;
-            if (Token[i + 1].TokenA == "[") { // 检查是否为数组定义
-                string varName = Token[i].TokenA;
-                i += 2; // 跳过数组名和"["
-                string arraySize = Token[i].TokenA;
-                addQuaternion("ARRAY", arraySize, "_", "_");
-                i += 2; // 跳过数组大小和"]"
-                i++; // 跳过分号
-            } else if (Token[i + 1].TokenA == "(") { // 检查是否为函数定义
-                string funcName = Token[i].TokenA;
-                addQuaternion("function_begin", "int", "-", funcName);
-                i += 2; // 跳过函数名和"("
-                while (Token[i].TokenA != ")") {
-                    if (Token[i].TokenA == "int") {
-                        i++; // 跳过参数类型
-                        string paramName = Token[i].TokenA;
-                        addQuaternion("param", "-", "-", paramName);
-                        i++; // 跳过参数名
-                        if (Token[i].TokenA == ",") i++; // 跳过逗号
-                    }
-                }
-                i++; // 跳过")"
-                if (Token[i].TokenA == "{") {
-                    i++; // 跳过"{"
-                    while (Token[i].TokenA != "}") {
-                        if (Token[i].TokenA == "int") {
-                            i++;
-                            string varName = Token[i].TokenA;
-                            addQuaternion("int", "_", "_", varName);
-                            i++;
-                            if (Token[i].TokenA == "=") {
-                                i++;
-                                vector<token> expr;
-                                while (Token[i].TokenA != ";") {
-                                    expr.push_back(Token[i]);
-                                    i++;
-                                }
-                                vector<string> postfix = infixToPostfix(expr);
-                                string result = evaluatePostfix(postfix);
-                                addQuaternion("=", result, "_", varName);
-                                i++; // 跳过";"
-                            }
-                        } else if (Token[i].TokenA == "return") {
-                            i++;
-                            string returnVar = Token[i].TokenA;
-                            addQuaternion("return", returnVar, "-", "-");
-                            i++; // 跳过返回变量
-                            i++; // 跳过";"
-                        }
-                    }
-                    addQuaternion("function_end", funcName, "-", "-");
-                }
-                i++; // 跳过大括号
-            } else {
-                // 变量定义和表达式处理
-                while (i < Token.size() && Token[i].TokenA != ";") {
-                    if (Token[i].TokenB == 0) {
-                        string varName = Token[i].TokenA;
-                        addQuaternion("int", "_", "_", varName);
-                        i++;
-                        if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
-                            string op = Token[i].TokenA;
-                            i++;
-                            vector<token> expr;
-                            while (Token[i].TokenA != "," && Token[i].TokenA != ";") {
-                                expr.push_back(Token[i]);
-                                i++;
-                            }
-                            vector<string> postfix = infixToPostfix(expr);
-                            string result = evaluatePostfix(postfix);
-                            if (op == "=") {
-                                addQuaternion("=", result, "_", varName);
-                            } else {
-                                string basicOp = op.substr(0, 1);
-                                addQuaternion(basicOp, varName, result, varName);
-                            }
-                        }
-                        if (Token[i].TokenA == ",") {
-                            i++;
-                        }
-                    }
-                }
-                i++; // 跳过分号
-            }
-        } else if (Token[i].TokenA == "if") {
-            i++;
-            if (Token[i].TokenA == "(") {
-                i++;
-                vector<token> expr;
-                while (Token[i].TokenA != ")") {
-                    expr.push_back(Token[i]);
-                    i++;
-                }
-                vector<string> postfix = infixToPostfix(expr);
-                string result = evaluatePostfix(postfix);
-                string falseLabel = "L" + to_string(labelCount++);
-                addQuaternion("JUMP_FALSE", result, "-", falseLabel);
-                i++; // 跳过")"
-                if (Token[i].TokenA == "{") {
-                    i++; // 跳过"{"
-                    while (Token[i].TokenA != "}") {
-                        if (Token[i].TokenB == 0) {
-                            string varName = Token[i].TokenA;
-                            i++;
-                            if (Token[i].TokenA == "=") {
-                                i++;
-                                vector<token> expr;
-                                while (Token[i].TokenA != ";") {
-                                    expr.push_back(Token[i]);
-                                    i++;
-                                }
-                                vector<string> postfix = infixToPostfix(expr);
-                                string result = evaluatePostfix(postfix);
-                                addQuaternion("=", result, "_", varName);
-                                i++; // 跳过";"
-                            }
-                        }
-                    }
-                    addQuaternion("LABEL", "-", "-", falseLabel);
-                    i++; // 跳过"}"
-                }
-            }
-        }  else if (Token[i].TokenA == "while") {
-            i++;
-            if (Token[i].TokenA == "(") {
-                i++;
-                vector<token> expr;
-                while (Token[i].TokenA != ")") {
-                    expr.push_back(Token[i]);
-                    i++;
-                }
-                string startLabel ="L" + to_string(labelCount++);
-                addQuaternion("LABEL", "-", "-", startLabel);
-                vector<string> postfix = infixToPostfix(expr);
-                string result = evaluatePostfix(postfix);
-                string falseLabel = "L" + to_string(labelCount++);
-                addQuaternion("JUMP_FALSE", result, "-", falseLabel);
-                i++; // 跳过")"
-                if (Token[i].TokenA == "{") {
-                    i++; // 跳过"{"
-                    while (Token[i].TokenA != "}") {
-                        if (Token[i].TokenB == 0) {
-                            string varName = Token[i].TokenA;
-                            i++;
-                            if (Token[i].TokenA == "=") {
-                                i++;
-                                vector<token> expr;
-                                while (Token[i].TokenA != ";") {
-                                    expr.push_back(Token[i]);
-                                    i++;
-                                }
-                                vector<string> postfix = infixToPostfix(expr);
-                                string result = evaluatePostfix(postfix);
-                                addQuaternion("=", result, "_", varName);
-                                i++; // 跳过";"
-                            }
-                        }
-                    }
-                    addQuaternion("JMUP", "-", "-", startLabel);
-                    addQuaternion("LABEL", "-", "-", falseLabel);
-                    i++; // 跳过"}"
-                }
-            }
-        } 
-        else if (Token[i].TokenA == "for") {
-            i++;
-            if (Token[i].TokenA == "(") {
-                i++;
-                i++;
-                // Initialization part
-                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
 
-                vector<token> initExpr;
-                while (Token[i].TokenA != ";") {
-                    initExpr.push_back(Token[i]);
-                    i++;
-                }
-                vector<string> initPostfix = infixToPostfix(initExpr);
-                evaluatePostfix(initPostfix);
-                i++; // 跳过";"
-                                                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
-
-                // Condition check part
-                string labelStart = "L" + to_string(labelCount++);
-                string labelEnd = "L" + to_string(labelCount++);
-                addQuaternion("LABEL", "-", "-", labelStart);
-                vector<token> condExpr;
-                while (Token[i].TokenA != ";") {
-                    condExpr.push_back(Token[i]);
-                    i++;
-                }
-                vector<string> condPostfix = infixToPostfix(condExpr);
-                string condResult = evaluatePostfix(condPostfix);
-                addQuaternion("JUMP_FALSE", condResult, "-", labelEnd);
-                i++; // 跳过";"
-                //cout<<"跳过第二个分号"<<"此时Token[i].TokenA:"<<Token[i].TokenA<<Token[i+1].TokenA<<Token[i+2].TokenA<<"i:"<<i<<endl;
-
-                // Increment part
-                vector<token> incExpr;
-                size_t incStart = i;
-                while (Token[i].TokenA != ")") {
-                    incExpr.push_back(Token[i]);
-                    i++;
-                }
-                i++; // 跳过")"
-
-
-                // Loop body
-                if (Token[i].TokenA == "{") {
-                    i++; // 跳过"{"
-                    while (Token[i].TokenA != "}") {
-                        if (Token[i].TokenB == 0) {
-                            string varName = Token[i].TokenA;
-                            i++;
-                            if (Token[i].TokenA == "=") {
-                                i++;
-                                vector<token> bodyExpr;
-                                while (Token[i].TokenA != ";") {
-                                    bodyExpr.push_back(Token[i]);
-                                    i++;
-                                }
-                                vector<string> bodyPostfix = infixToPostfix(bodyExpr);
-                                string bodyResult = evaluatePostfix(bodyPostfix);
-                                addQuaternion("=", bodyResult, "_", varName);
-                                i++; // 跳过";"
-                            }
-                        }
-                    }
-                    //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
-
-                    addQuaternion("LABEL", "-", "-", "L2");
-                    i++; // 跳过"}"
-                    //cout<<"此时Token[i].TokenA     :"<<Token[i].TokenA<<"i:"<<i<<endl;
-
-                }
-                int tmp = i;
-                //cout<<"执行完循环体此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                // Increment part
-                incExpr.clear();
-                i = incStart;
-                //cout<<"执行完循环体返回到增量此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                while (Token[i].TokenA != ")") {
-                    incExpr.push_back(Token[i]);
-                    i++;
-                }
-                //cout<<"此时Token[i].TokenA2:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                //i+=2;
-                vector<string> incPostfix = infixToPostfix(incExpr);
-                evaluatePostfix(incPostfix);
-                addQuaternion("JUMP", "-", "-", labelStart);
-                addQuaternion("LABEL", "-", "-", labelEnd);
-                i++; // 跳过")"
-                //cout<<"此时Token[i].TokenA:"<<Token[i].TokenA<<"i:"<<i<<endl;
-                i = tmp ;
-
-            }
-            
-        } else if (Token[i].TokenB == 0) {
-            string varName = Token[i].TokenA;
-            i++;
-            if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
+void parseExpression(size_t& i, int& labelCount) {
+    string varName = Token[i].TokenA;
+    i++;
+if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
                 string op = Token[i].TokenA;
                 i++;
                 vector<token> expr;
@@ -640,19 +229,388 @@ void generateQuaternions() {
                 }
                 //cout<<"token"<<Token[i].TokenA<<i<<endl;
                 for (const auto& arg : args) {
-                    addQuaternion("arg", arg, "-", "-");
+                    addQuaternion("arg", arg, "_", "_");
                 }
-                addQuaternion("call", varName, to_string(args.size()), "-");
+                addQuaternion("call", varName, to_string(args.size()), "_");
                 i++; // 跳过")"
                 i++; // 跳过";"
             }
+
+
+}
+void parseExpression_for(size_t& i, int& labelCount) {
+    string varName = Token[i].TokenA;
+    i++;
+if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
+                string op = Token[i].TokenA;
+                i++;
+                vector<token> expr;
+                while (Token[i].TokenA != ")") {
+                    expr.push_back(Token[i]);
+                    i++;
+                }
+                vector<string> postfix = infixToPostfix(expr);
+                string result = evaluatePostfix(postfix);
+                if (op == "=") {
+                    addQuaternion("=", result, "_", varName);
+                } else {
+                    string basicOp = op.substr(0, 1);
+                    addQuaternion(basicOp, varName, result, varName);
+                }
+                i++; // 跳过")"
+            
+
+}
+}
+
+void parseBlock(size_t& i, int& labelCount) {
+    i++; // 跳过"{"
+    while (Token[i].TokenA != "}") {
+        if (Token[i].TokenA == "int") {
+            parseVariableDeclaration(i);
+        } else if (Token[i].TokenA == "if") {
+            parseIfStatement(i, labelCount);
+        } else if (Token[i].TokenA == "while") {
+            parseWhileStatement(i, labelCount);
+        } else if (Token[i].TokenA == "for") {
+            parseForStatement(i, labelCount);
+        } else {
+            parseExpression(i, labelCount);
+        }
+    }
+    i++; // 跳过"}"
+}
+
+void parseVariableDeclaration(size_t& i) {
+    string var1 = Token[i].TokenA;
+    i++;
+            if (Token[i + 1].TokenA == "[") { // 检查是否为数组定义
+                string varName = Token[i].TokenA;
+                i +=2; // 跳过数组名和"["
+                string arraySize = Token[i].TokenA;
+                addQuaternion("ARRAY", arraySize, var1, varName);
+                i += 2; // 跳过数组大小和"]"
+                i++; // 跳过分号
+            } else if (Token[i + 1].TokenA == "(") { // 检查是否为函数定义
+                string funcName = Token[i].TokenA;
+                addQuaternion("function_begin", "int", "_", funcName);
+                i += 2; // 跳过函数名和"("
+                while (Token[i].TokenA != ")") {
+                    if (Token[i].TokenA == "int") {
+                        i++; // 跳过参数类型
+                        string paramName = Token[i].TokenA;
+                        addQuaternion("param", "_", "_", paramName);
+                        i++; // 跳过参数名
+                        if (Token[i].TokenA == ",") i++; // 跳过逗号
+                    }
+                }
+                i++; // 跳过")"
+                if (Token[i].TokenA == "{") {
+                    i++; // 跳过"{"
+                    while (Token[i].TokenA != "}") {
+                        if (Token[i].TokenA == "int") {
+                            i++;
+                            string varName = Token[i].TokenA;
+                            addQuaternion("int", varName, "_", "_");
+                            i++;
+                            if (Token[i].TokenA == "=") {
+                                i++;
+                                vector<token> expr;
+                                while (Token[i].TokenA != ";") {
+                                    expr.push_back(Token[i]);
+                                    i++;
+                                }
+                                vector<string> postfix = infixToPostfix(expr);
+                                string result = evaluatePostfix(postfix);
+                                addQuaternion("=", result, "_", varName);
+                                i++; // 跳过";"
+                            }
+                        } else if (Token[i].TokenA == "return") {
+                            i++;
+                            string returnVar = Token[i].TokenA;
+                            addQuaternion("return", returnVar, "_", "_");
+                            i++; // 跳过返回变量
+                            i++; // 跳过";"
+                        }
+                    }
+                    addQuaternion("function_end", "_", "_", funcName);
+                }
+                i++; // 跳过大括号
+            } else {
+                // 变量定义和表达式处理
+                while (i < Token.size() && Token[i].TokenA != ";") {
+                    if (Token[i].TokenB == 0) {
+                        string varName = Token[i].TokenA;
+                        addQuaternion("int",  varName, "_","_");
+                        i++;
+                        if (Token[i].TokenA == "=" || Token[i].TokenA == "+=" || Token[i].TokenA == "-=" || Token[i].TokenA == "*=" || Token[i].TokenA == "/=") {
+                            string op = Token[i].TokenA;
+                            i++;
+                            vector<token> expr;
+                            while (Token[i].TokenA != "," && Token[i].TokenA != ";") {
+                                expr.push_back(Token[i]);
+                                i++;
+                            }
+                            vector<string> postfix = infixToPostfix(expr);
+                            string result = evaluatePostfix(postfix);
+                            if (op == "=") {
+                                addQuaternion("=", result, "_", varName);
+                            } else {
+                                string basicOp = op.substr(0, 1);
+                                addQuaternion(basicOp, varName, result, varName);
+                            }
+                        }
+                        if (Token[i].TokenA == ",") {
+                            i++;
+                        }
+                    }
+                }
+                i++; // 跳过分号
+            }
+}
+void parseWhileStatement(size_t& i, int& labelCount) {
+    i++;
+    if (Token[i].TokenA == "(") {
+        i++;
+        vector<token> expr;
+        while (Token[i].TokenA != ")") {
+            expr.push_back(Token[i]);
+            i++;
+        }
+        string startLabel = "L" + to_string(labelCount++);
+        addQuaternion("LABEL", "_", "_", startLabel);
+        vector<string> postfix = infixToPostfix(expr);
+        string result = evaluatePostfix(postfix);
+        string tempVar = "t" + to_string(labelCount++);
+        addQuaternion(postfix.back(), postfix[postfix.size() - 3], postfix[postfix.size() - 2], tempVar);
+        string falseLabel = "L" + to_string(labelCount++);
+        addQuaternion("JUMP_FALSE", tempVar, "_", falseLabel);
+        i++; // 跳过")"
+        parseBlock(i, labelCount);
+        addQuaternion("JUMP", "_","_", startLabel);
+        addQuaternion("LABEL", "_", "_", falseLabel);
+    }
+}
+
+void parseForStatement(size_t& i, int& labelCount) {
+    i++;
+    if (Token[i].TokenA == "(") {
+        i++;
+        if (Token[i].TokenA == "int") {
+            parseVariableDeclaration(i);
+        } else {
+            parseExpression(i, labelCount);
+        }
+
+        string labelStart = "L" + to_string(labelCount++);
+        string labelEnd = "L" + to_string(labelCount++);
+        addQuaternion("LABEL", "_", "_", labelStart);
+
+        vector<token> condExpr;
+        while (Token[i].TokenA != ";") {
+            condExpr.push_back(Token[i]);
+            i++;
+        }
+        vector<string> condPostfix = infixToPostfix(condExpr);
+        string condResult = evaluatePostfix(condPostfix);
+        string tempVar = "t" + to_string(labelCount++);
+        addQuaternion(condPostfix.back(), condPostfix[condPostfix.size() - 3], condPostfix[condPostfix.size() - 2], tempVar);
+        addQuaternion("JUMP_FALSE", tempVar, "_", labelEnd);
+        i++; // 跳过";"
+
+        size_t incStart = i;
+        vector<token> incExpr;
+        while (Token[i].TokenA != ")") {
+            incExpr.push_back(Token[i]);
+            i++;
+        }
+        i++; // 跳过")"
+
+        parseBlock(i, labelCount);
+        int tmp = i;
+
+        incExpr.clear();
+        i = incStart;
+        parseExpression_for(i, labelCount);
+
+        addQuaternion("JUMP", "_", "_", labelStart);
+        addQuaternion("LABEL", "_", "_", labelEnd);
+        i = tmp;
+    }
+}
+void parseMain(size_t& i, int& labelCount) {
+    addQuaternion("main_start",  "main", "_","_");
+    i++; // 跳过"main"
+    i++; // 跳过"("
+    i++; // 跳过")"
+    i++;
+    //cout<<Token[i].TokenA <<endl;
+    if (Token[i].TokenA == "{") {
+        parseBlock(i, labelCount);
+    }
+    addQuaternion("main_end", "main", "_", "_");
+}
+void parse(string code) {
+
+    // 函数声明
+    addToken("int", K["int"]);
+    addToken("sum", 0);
+    addToken("(", P["("]);
+    addToken("int", K["int"]);
+    addToken("x", 0);
+    addToken(",", P[","]);
+    addToken("int", K["int"]);
+    addToken("y", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("return", K["return"]);
+    addToken("x", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+    addToken("int", K["int"]);
+    addToken("main", 0);
+    addToken("(", P["("]);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+
+    // 变量声明
+    addToken("int", K["int"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("5", 0);
+    addToken(",", P[","]);
+    addToken("b", 0);
+    addToken("=", P["="]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
+    
+    addToken("b", 0);
+    addToken("-=", P["-="]);
+    addToken("a", 0);
+    addToken("+", P["+"]);
+    addToken("2", 0);
+    addToken(";", P[";"]);
+
+    // 数组声明与访问
+    addToken("int", K["int"]);
+    addToken("arr", 0);
+    addToken("[", P["["]);
+    addToken("20", 0);
+    addToken("]", P["]"]);
+    addToken(";", P[";"]);
+
+    addToken("arr", 0);
+    addToken("[", P["["]);
+    addToken("5", 0);
+    addToken("]", P["]"]);
+    addToken("=", P["="]);
+    addToken("b", 0);
+    addToken(";", P[";"]);
+
+    // 赋值和运算
+    addToken("c", 0);
+    addToken("=", P["="]);
+    addToken("a", 0);
+    addToken("*", P["*"]);
+    addToken("b", 0);
+    addToken("+", P["+"]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
+
+    // if 语句
+    addToken("if", K["if"]);
+    addToken("(", P["("]);
+    addToken("a", 0);
+    addToken(">", P[">"]);
+    addToken("b", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("a", 0);
+    addToken("-", P["-"]);
+    addToken("1", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+    // while 循环
+    addToken("while", K["while"]);
+    addToken("(", P["("]);
+    addToken("a", 0);
+    addToken("<", P["<"]);
+    addToken("b", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("b", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+    // for 循环
+    addToken("for", K["for"]);
+    addToken("(", P["("]);
+    addToken("int", K["int"]);
+    addToken("i", 0);
+    addToken("=", P["="]);
+    addToken("0", 0);
+    addToken(";", P[";"]);
+    addToken("i", 0);
+    addToken("<", P["<"]);
+    addToken("10", 0);
+    addToken(";", P[";"]);
+    addToken("i", 0);
+    addToken("=", P["="]);
+    addToken("i", 0);
+    addToken("+", P["+"]);
+    addToken("1", 0);
+    addToken(")", P[")"]);
+    addToken("{", P["{"]);
+    addToken("a", 0);
+    addToken("=", P["="]);
+    addToken("a", 0);
+    addToken("+", P["+"]);
+    addToken("1", 0);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+
+
+    // 函数调用
+    addToken("sum", 0);
+    addToken("(", P["("]);
+    addToken("a", 0);    
+    addToken(",", P[","]);
+    addToken("b", 0);
+    addToken(")", P[")"]);
+    addToken(";", P[";"]);
+    addToken("}", P["}"]);
+}
+
+void generateQuaternions() {
+    size_t i = 0;
+    int labelCount = 1;
+    while (i < Token.size()) {        
+        if (Token[i].TokenA == "int" && Token[i + 1].TokenA == "main") {
+            parseMain(i, labelCount);
+        } 
+        else if (Token[i].TokenA == "int") {
+            parseVariableDeclaration(i);
+        } else if (Token[i].TokenA == "if") {
+            parseIfStatement(i, labelCount);
+        } else if (Token[i].TokenA == "while") {
+            parseWhileStatement(i, labelCount);
+        } else if (Token[i].TokenA == "for") {
+            parseForStatement(i, labelCount);
+        } else {
+            parseExpression(i, labelCount);
         }
     }
 }
 
 void printQuaternions() {
     for (const auto& q : Quaternion) {
-        cout << "{" <<"\""<< q.op <<"\""<< ", "<<"\"" << q.opt1<<"\"" << ", "<<"\"" << q.opt2 <<"\""<< ", "<<"\"" << q.result<<"\"" << "}"<<","<<endl;
+        cout << "{" << "\"" << q.op << "\"" << ", " << "\"" << q.opt1 << "\"" << ", " << "\"" << q.opt2 << "\"" << ", " << "\"" << q.result << "\"" << "}," << endl;
     }
 }
 
