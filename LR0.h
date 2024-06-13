@@ -137,65 +137,57 @@ void bfs (closure &clo) {
         fullClo.print ();
         string last = "";
         closure v;
+        set <string> edge;
         for (; it != fullClo.close.end (); it++) {
             auto itm = *it;
             if (itm.pos == itm.st.Vt.size ())
                 continue;
             if (itm.st.Vt[itm.pos] == "empty") continue;
             string thsVt = itm.st.Vt[itm.pos];
-            if (last == "" || last == thsVt) {
-                item vItm = itm;
-                vItm.pos++;
-                v.close.insert (vItm);
-                last = thsVt;
-            } else {
-                if (v.close.size ()) {
-                    lawI.insert (v);
-                    if (!closureF.count (v)) {
-                        closureF[v] = ++closureCnt;
-                        vecClo[closureCnt] = v;
-                    }
-                    cout << "case1" << endl;
-                    cout << "closureCnt = " << closureCnt << endl;
-                    if (!cloVis[v]) {
-                        q.push(v);
-                        cloVis[v] = true;
-                    }
-                    //cout << "u = ";
-                    //fullClo.print ();
-                    //cout << "v = ";
-                    //v.print ();
-                    cout << "f[" << closureF[u] << "][" << last << "] = " << closureF[v] << endl;
-                    closureG[closureF[u]][last] = closureF[v];
-                    v.close.clear ();
-                }
+            edge.insert (thsVt);
+        }
+        for (auto x : edge) {
+            v.close.clear ();
+            for (it = fullClo.close.begin (); it != fullClo.close.end (); it++) {
+                auto itm = *it;
                 if (itm.pos == itm.st.Vt.size ())
                     continue;
                 if (itm.st.Vt[itm.pos] == "empty") continue;
-                item vItm = itm;
-                vItm.pos++;
-                v.close.insert (vItm);
-                last = thsVt;
+                string thsVt = itm.st.Vt[itm.pos];
+                if (thsVt == x) {
+                    item newItm = item (it->pos, it->st);
+                    newItm.pos++;
+                    v.close.insert (newItm);
+                }
+            }
+            if (v.close.size ()) {
+                lawI.insert (v);
+                if (!closureF.count (v)) {
+                    closureF[v] = ++closureCnt;
+                    vecClo[closureCnt] = v;
+                }
+                if (!cloVis[v]) {
+                    q.push (v);
+                    cloVis[v] = true;
+                }
+                cout << "f[" << closureF[u] << "][" << x << "] = " << closureF[v] << endl;
+                closureG[closureF[u]][x] = closureF[v];
             }
         }
-        if (v.close.size ()) {
-            cout << "case2" << endl;
-            lawI.insert (v);
-            if (!closureF.count (v)) {
-                closureF[v] = ++closureCnt;
-                vecClo[closureCnt] = v;
-            }
-            if (!cloVis[v]) {
-                q.push (v);
-                cloVis[v] = true;
-            }
-            //cout << "u = ";
-            //fullClo.print ();
-            //cout << "v = ";
-            //v.print ();
-            cout << "f[" << closureF[u] << "][" << last << "] = " << closureF[v] << endl;
-            closureG[closureF[u]][last] = closureF[v];
-        }
+        //if (v.close.size ()) {
+        //    cout << "case2" << endl;
+        //    lawI.insert (v);
+        //    if (!closureF.count (v)) {
+        //        closureF[v] = ++closureCnt;
+        //        vecClo[closureCnt] = v;
+        //    }
+        //    if (!cloVis[v]) {
+        //        q.push (v);
+        //        cloVis[v] = true;
+        //    }
+        //    cout << "f[" << closureF[u] << "][" << last << "] = " << closureF[v] << endl;
+        //    closureG[closureF[u]][last] = closureF[v];
+        //}
     }
 }
 
@@ -206,67 +198,133 @@ struct Action {
     Action (string _type, int _pos) {
         type = _type; pos = _pos;
     }
+    inline void print () {
+        cout << "(" << type << ", " << pos << ")" << endl;
+    }
 };
 
 map <string, Action> act[CLOSURE_MAX_CNT];
 
 void buildTable () {
     for (int i = 1; i <= closureCnt; i++) {
-        for (auto itm : vecClo[i].close) {
+        cout << "i = " << i << endl;
+        for (auto itm : borderClousre(vecClo[i]).close) {
             int pos = itm.pos;
             if (pos == itm.st.Vt.size ()) {
                 string tempVn = itm.st.Vn;
+                if (tempVn == "__s") continue;
                 for (auto x : follow[tempVn]) {
                     act[i][x].pos = law.idx[itm.st];
                     act[i][x].type = "protocal";
+                    cout << "act[" << i << "][" << x << "] = ";
+                    act[i][x].print ();
                 }
                 continue;
             }
-            string tempVt = itm.st.Vt[pos];
-            if (nature[tempVt] == 2) {
-                act[i][tempVt].pos = closureG[i][tempVt];
-                act[i][tempVt].type = "move";
+            for (int j = pos; j < itm.st.Vt.size (); j++) {
+                string tempVt = itm.st.Vt[pos];
+                if (nature[tempVt] == 2 || nature[tempVt] == 0) {
+                    act[i][tempVt].pos = closureG[i][tempVt];
+                    act[i][tempVt].type = "move";
+                    cout << "act[" << i << "][" << tempVt << "] = ";
+                    act[i][tempVt].print ();
+                    break;
+                } else {
+                    bool flag = false;
+                    auto it = first[tempVt].lower_bound ("empty");
+                    if (it == first[tempVt].end () || (*it) != "empty") {
+                        flag = true;
+                    }
+                    for (auto x : first[tempVt]) {
+                        if (x == "empty") continue;
+                        if (nature[x] == 1) continue;
+                        act[i][x].pos = closureG[i][x];
+                        act[i][x].type = "move";
+                        cout << "act[" << i << "][" << x << "] = ";
+                        act[i][x].print ();
+                        break;
+                    }
+                    if (!flag) break;
+                }
             }
         }
     }
     act[2]["$"].type = "accept";
+    //act[5]["main"] = Action ("move", 45);
+    //act[2]["$"].print ();
 }
 
 bool syntaxCacu () {
+    for (auto x : act[1]) {
+        cout << "(" << x.first << ", "; x.second.print();
+        cout << ")" << endl;
+    }
+    cout << "syntaxCacu" << endl;
     stack <int> stk;
     stack <string> charStk;
     stk.push (1);
     charStk.push ("$");
     int state = 1;
     buildTable ();
-    for (auto x : WordFinal.Token) {
+    int tokenCnt = 0;
+    token x = WordFinal.Token[tokenCnt];
+    while (true) {
+        cout << endl;
+        x = WordFinal.Token[tokenCnt];
         string type = x.TokenA;
         int pos = x.TokenB;
         string inStack;
         if (type == "K") {
             inStack = WordFinal.revFind (x);
-            state = closureG[state][inStack];
+            if (inStack == "main") {
+                inStack = "var";
+            }
         } else if (type == "P") {
             inStack = WordFinal.revFind (x);
-            state = closureG[state][inStack];
         } else if (type == "I") {
             inStack = "var";
-            state = closureG[state][inStack];
         } else if (type == "C1") {
             inStack = "integrate";
-            state = closureG[state][inStack];
         } else if (type == "C2") {
             inStack = "floatnum";
-            state = closureG[state][inStack];
         } else if (type == "CT") {
             inStack = "chartype";
-            state = closureG[state][inStack];
         } else {
             inStack = "stringtype";
-            state = closureG[state][inStack];
         }
-        while (true) {
-
+        cout << "inStack = " << inStack << endl;
+        int nowS = stk.top ();
+        cout << "nowS = " << nowS << endl;
+        if (act[nowS][inStack].type == "move") {
+            cout << "case move" << endl;
+            stk.push (act[nowS][inStack].pos);
+            cout << act[nowS][inStack].pos << "was pushed" << endl;
+            charStk.push (inStack);
+            tokenCnt++;
+        } else if (act[nowS][inStack].type == "protocal") {
+            cout << "case protocal" << endl;
+            int lawPos = act[nowS][inStack].pos;
+            stmt st = law.st[lawPos];
+            string tempVn = st.Vn;
+            int num = st.Vt.size ();
+            for (int i = 1; i <= num; i++) {
+                charStk.pop();
+                stk.pop ();
+                cout << "pop" << endl;
+            }
+            int stktop = stk.top ();
+            cout << "stktop = " << stktop << endl;
+            cout << "Vn = " << tempVn << endl;
+            int nextState = closureG[stktop][tempVn];
+            cout << "next State = " << nextState << endl;
+            charStk.push (tempVn);
+            stk.push (nextState);
+            cout << nextState << "was pushed" << endl;
+            st.print ();
+        } else if (act[nowS][inStack].type == "accept") {
+            return true;
+        } else {
+            return false;
         }
     }
 }
@@ -284,9 +342,10 @@ bool LR0 () {
     cout << "cnt = " << closureCnt << endl;
     for (int i = 1; i <= closureCnt; i++) {
         cout << "clo[" << i << "] = ";
-        vecClo[i].print ();
+        borderClousre(vecClo[i]).print ();
     }
     closureG[2]["$"] = ++closureCnt;
+    buildTable ();
     return syntaxCacu ();
 }
 
