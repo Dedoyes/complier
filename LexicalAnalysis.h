@@ -9,12 +9,12 @@
 #include<cstdio>
 #include<map>
 #include<set>
+#include"Token.h"
+
 using namespace std;
 
-struct token {
-    string TokenA;
-    int TokenB;
-};
+//string BreakDown[5070];
+//int NUMBreak = 0;
 
 //词法结构
 struct Lexical {
@@ -32,6 +32,8 @@ struct Lexical {
     map <string, int> ST;
     int NUMST = 0;
 
+
+    int NUMK = 17;
     //存Token序列
     vector <token> Token;
 
@@ -246,13 +248,29 @@ struct Lexical {
                 }
                 else if (isspace(Coden[i + 1])) {
                     if (isK(tem)) {
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                     }
                     else {
-                        isI(tem);
-                        tem.clear();
-                        tem += Coden[++i];
+                        token tstr;
+                        tstr = Token.back();
+                        if (tstr.TokenB == 16) {
+                            K[tem] = ++NUMK;
+                            token Va;
+                            Va.TokenA = "K";
+                            Va.TokenB = K[tem];
+                            Token.push_back(Va);
+                            //BreakDown[++NUMBreak] = tem;
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            isI(tem);
+                            //BreakDown[++NUMBreak] = tem;
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
                     }
                 }
                 else if (issymbol(Coden[i + 1])) {
@@ -262,13 +280,29 @@ struct Lexical {
                     }
 
                     if (isK(tem)) {
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                     }
                     else {
-                        isI(tem);
-                        tem.clear();
-                        tem += Coden[++i];
+                        token tstr;
+                        tstr = Token.back();
+                        if (tstr.TokenB == 16) {
+                            K[tem] = ++NUMK;
+                            token Va;
+                            Va.TokenA = "K";
+                            Va.TokenB = K[tem];
+                            Token.push_back(Va);
+                            //BreakDown[++NUMBreak] = tem;
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
+                        else {
+                            isI(tem);
+                            //BreakDown[++NUMBreak] = tem;
+                            tem.clear();
+                            tem += Coden[++i];
+                        }
                     }
                 }
             }
@@ -304,11 +338,13 @@ struct Lexical {
                     }
                     if (F == 0) {
                         isC1(tem);
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                     }
                     else if (F == 1) {
                         isC2(tem);
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                     }
@@ -326,11 +362,13 @@ struct Lexical {
                         }
                         if (F == 0) {
                             isC1(tem);
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
                         else if (F == 1) {
                             isC2(tem);
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
@@ -344,6 +382,7 @@ struct Lexical {
             else if (issymbol(tem[0])) {
                 if (tem[0] == '\'') {
                     if (isP(tem)) {
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                         if (Coden[i + 1] != '\'') {
@@ -352,9 +391,11 @@ struct Lexical {
                         }
                         else {
                             isCT(tem);
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                             if (isP(tem)) {
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -363,12 +404,14 @@ struct Lexical {
                 }
                 else if (tem[0] == '\"') {
                     if (isP(tem)) {
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                         if (tem[0] == '\"') {
                             string impor = "";
                             isST(impor);
                             if (isP(tem)) {
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -378,9 +421,11 @@ struct Lexical {
                                 tem += Coden[++i];
                             }
                             isST(tem);
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                             if (isP(tem)) {
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -389,6 +434,7 @@ struct Lexical {
                 }
                 else if (isletter(Coden[i + 1])) {
                     if (isP(tem)) {
+                        //BreakDown[++NUMBreak] = tem;
                         tem.clear();
                         tem += Coden[++i];
                     }
@@ -407,6 +453,7 @@ struct Lexical {
                     }
                     else {
                         if (isP(tem)) {
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
@@ -418,37 +465,48 @@ struct Lexical {
                     }
                 }
                 else if (issymbol(Coden[i + 1])) {
-                    if (tem[0] != '+' && tem[0] != '-') {
-                        tem += Coden[++i];
+
+                    if (Coden[i + 1] == '\"' || Coden[i + 1] == '\'') {
                         if (isP(tem)) {
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
-                        else {
-                            string out1, out2;
-                            out1 += tem[0];
-                            out2 += tem[1];
-                            if (isP(out1)) {
-                                if (isP(out2)) {
-                                    tem.clear();;
-                                    tem += Coden[++i];
-                                }
-                                else {
-                                    cout << m << "行第" << i << "处字符附近出现错误" << endl;
-                                    cout << tem << "不存在于界符表里" << endl;
-                                    return false;
-                                }
-                            }
-                            else {
-                                cout << m << "行第" << i << "处字符附近出现错误" << endl;
-                                cout << tem << "不存在于界符表里" << endl;
-                                return false;
-                            }
-                        }
+                    }
+                    else if (tem[0] != '+' && tem[0] != '-') {
+                         tem += Coden[++i];
+                         if (isP(tem)) {
+                             //BreakDown[++NUMBreak] = tem;
+                             tem.clear();
+                             tem += Coden[++i];
+                         }
+                         else {
+                             string out1, out2;
+                             out1 += tem[0];
+                             out2 += tem[1];
+                             if (isP(out1)) {
+                                 if (isP(out2)) {
+                                     //BreakDown[++NUMBreak] = tem;
+                                     tem.clear();;
+                                     tem += Coden[++i];
+                                 }
+                                 else {
+                                     cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                                     cout << tem << "不存在于界符表里" << endl;
+                                     return false;
+                                 }
+                             }
+                             else {
+                                 cout << m << "行第" << i << "处字符附近出现错误" << endl;
+                                 cout << tem << "不存在于界符表里" << endl;
+                                 return false;
+                             }
+                         }
                     }
                     else if (tem[0] == '+' && Coden[i + 1] == '=') {
                         tem += Coden[++i];
                         if (isP(tem)) {
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
@@ -457,6 +515,7 @@ struct Lexical {
                     else if (tem[0] == '-' && Coden[i + 1] == '=') {
                         tem += Coden[++i];
                         if (isP(tem)) {
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
@@ -485,6 +544,7 @@ struct Lexical {
 
                         if (Addnum == 2 || Subnum == 2) {
                             if (isP(tem)) {
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -496,6 +556,7 @@ struct Lexical {
                                     spc += tem[j++];
                                     if (isP(spc)) {}
                                 }
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -511,6 +572,7 @@ struct Lexical {
                                     spc += tem[j++];
                                     if (isP(spc)) {}
                                 }
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -528,11 +590,13 @@ struct Lexical {
                         if (Now.TokenA == "P") {
                             tem += Coden[++i];
                             isC1(tem);
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
                         else {
                             if (isP(tem)) {
+                                //BreakDown[++NUMBreak] = tem;
                                 tem.clear();
                                 tem += Coden[++i];
                             }
@@ -544,6 +608,7 @@ struct Lexical {
                     }
                     else {
                         if (isP(tem)) {
+                            //BreakDown[++NUMBreak] = tem;
                             tem.clear();
                             tem += Coden[++i];
                         }
@@ -557,10 +622,11 @@ struct Lexical {
         }
         if (isletter(tem[0])) {
             if (isK(tem)) {
-
+                //BreakDown[++NUMBreak] = tem;
             }
             else {
                 isI(tem);
+                //BreakDown[++NUMBreak] = tem;
             }
         }
         else if (isfigure(tem[0])) {
@@ -572,14 +638,16 @@ struct Lexical {
             }
             if (tems == 0) {
                 isC1(tem);
+                //BreakDown[++NUMBreak] = tem;
             }
             else {
                 isC2(tem);
+                //BreakDown[++NUMBreak] = tem;
             }
         }
         else if (issymbol(tem[0])) {
             if (isP(tem)) {
-
+                //BreakDown[++NUMBreak] = tem;
             }
         }
         return true;
@@ -588,31 +656,33 @@ struct Lexical {
 
 struct Lexical WordFinal;//词法分析的全局变量 Word
 
+
+
 void Lexical_Analysis() {
     WordFinal.iniK();
     WordFinal.iniP();
 
-    int n_hypothesis;//假设有n行代码
-    cin >> n_hypothesis;
-    getchar();
-    int ClockA = 1;//代表当前分析的是第几行代码
+    //文件输入
+    freopen("Program.in", "r", stdin);
 
-    while (n_hypothesis--) {
-        string temp;  // 一行一行代码来  进行词法分析
-        getline(cin, temp);
+    int ClockA = 1;
+    string temp; 
+    while (getline(cin,temp)) {
         bool truth = WordFinal.Disassemble(temp, ClockA++);
         if (truth) {
-            cout << "词法分析成功" << endl;
         }
         else {
             cout << "词法分析失败" << endl;
-
         }
     }
 
+    cout << "词法分析成功" << endl;
     for (auto C : WordFinal.Token) {
         cout << "(" << C.TokenA << "," << C.TokenB << ")" << endl;
     }
+
+    fclose(stdin);
+    cin.clear();
 }
 
 #endif
