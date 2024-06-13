@@ -33,7 +33,7 @@ struct Lexical {
     int NUMST = 0;
 
 
-    int NUMK = 17;
+    int NUMK = 19;
     //存Token序列
     vector <token> Token;
 
@@ -58,6 +58,8 @@ struct Lexical {
         K["char"] = 15;
         K["struct"] = 16;
         K["continue"] = 17;
+        K["false"] = 18;
+        K["true"] = 19;
     }
 
     void iniP() {
