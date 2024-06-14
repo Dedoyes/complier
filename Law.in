@@ -32,7 +32,7 @@ expr -> ( expr ) | expr opt2 expr | integrate | floatnum | lopt1 expr | expr rop
 expr -> var [ expr ]
 expr -> expr , expr
 expr -> var ( expr )
-opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | != | <= | >=
+opt2 -> + | - | * | / | % | & | | | ^ | xor | || | && | == | != | <= | >= | > | <
 lopt1 -> ++ | ! | -- | - | +
 ropt1 -> ++ | --
 spcletter -> + | - | / | * | ! | @ | # | % | ^ | & | ( | ) | [ | ] | | | { | } | , | . | ; | : | ? | < | > | = | empty | '
