@@ -34,7 +34,29 @@ vector<string> infixToPostfix(const vector<token>& expr) {
     stack<string> opStack;
     vector<string> postfix;
     for (const auto& t : expr) {
-        if (t.TokenB == 0) {
+
+        cout<<"t.TokenA = "<<t.TokenA<<" t.TokenB = "<<t.TokenB<<endl;
+
+        bool flag = false;
+        string tempStr = t.TokenA;
+        cout<<"tempStr = "<<tempStr<<" start_flag = "<<flag<<endl;
+    if(!flag){
+        auto it = WordFinal.I.lower_bound (tempStr);
+        if (it != WordFinal.I.end () && (*it).first == tempStr)
+            flag = true;
+
+    }
+    cout<<"it_flag = "<<flag<<endl;
+    if(!flag){
+        cout<<"flag_2_start"<<endl;
+        auto it_1 = WordFinal.C1.lower_bound (tempStr);
+        if (it_1 != WordFinal.C1.end () && (*it_1).first == tempStr)
+            flag = true;
+
+    }
+    cout<<"it_1_flag = "<<flag<<endl;
+        if (flag) {
+            cout<<"flag = "<<flag<<endl;
             postfix.push_back(t.TokenA);
         } else if (t.TokenA == "(") {
             opStack.push(t.TokenA);
@@ -45,6 +67,7 @@ vector<string> infixToPostfix(const vector<token>& expr) {
             }
             opStack.pop(); // pop "("
         } else {
+            cout<<"flag = "<<flag<<endl;
             while (!opStack.empty() && OP[opStack.top()] >= OP[t.TokenA]) {
                 postfix.push_back(opStack.top());
                 opStack.pop();
@@ -63,6 +86,7 @@ string evaluatePostfix(vector<string>& postfix) {
     stack<string> evalStack;
     int tempCount = 1;
     for (const auto& token : postfix) {
+
         if (OP.find(token) == OP.end()) {
             evalStack.push(token);
         } else {
@@ -86,15 +110,19 @@ void parseForStatement(size_t& i, int& labelCount);
 
 void parseIfStatement(size_t& i, int& labelCount) {
     i++;
-    cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+    cout << "If_WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
 
     if (WordFinal.Token[i].TokenA == "(") {
         i++;
         vector<token> expr;
+        cout<<"expr = ";
         while (WordFinal.Token[i].TokenA != ")") {
             expr.push_back(WordFinal.Token[i]);
+            cout<<WordFinal.Token[i].TokenA<<" ";
             i++;
-        }        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+        }
+        cout<<endl;
+        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
 
         vector<string> postfix = infixToPostfix(expr);
         string result = evaluatePostfix(postfix);
@@ -109,7 +137,6 @@ void parseIfStatement(size_t& i, int& labelCount) {
 
         i++; // 跳过")"
         cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
-
         parseBlock(i, labelCount);
         addQuaternion("LABEL", "_", "_", falseLabel);
         cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
@@ -118,25 +145,38 @@ void parseIfStatement(size_t& i, int& labelCount) {
 }
 void parseExpression(size_t& i, int& labelCount) {
     string varName = WordFinal.Token[i].TokenA;
-    i++;
+    i++;//////////////////////////////////////////////////////////////
     if (WordFinal.Token[i].TokenA == "=" || WordFinal.Token[i].TokenA == "+=" || WordFinal.Token[i].TokenA == "-=" || WordFinal.Token[i].TokenA == "*=" || WordFinal.Token[i].TokenA == "/=") {
         string op = WordFinal.Token[i].TokenA;
-        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+        cout << "Expression——WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         i++;
         vector<token> expr;
+        cout << "expr = ";
         while (WordFinal.Token[i].TokenA != ";") {
             expr.push_back(WordFinal.Token[i]);
+            cout <<WordFinal.Token[i].TokenA<<" ";
             i++;
         }
+        cout <<endl;
+        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+
         vector<string> postfix = infixToPostfix(expr);
+        cout << "111"<<"WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         string result = evaluatePostfix(postfix);
+        cout<<"result"<<result<<endl;
+
+
+        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         if (op == "=") {
             addQuaternion("=", result, "_", varName);
         } else {
             string basicOp = op.substr(0, 1);
             addQuaternion(basicOp, varName, result, varName);
         }
+        cout << "111"<<"WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         i++; // 跳过分号
+        cout << "111"<<"WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+
     } else if (WordFinal.Token[i].TokenA == "++") { // 处理自增操作符
         addQuaternion("+", varName, "1", varName);
         i++; // 跳过++
@@ -170,7 +210,7 @@ void parseExpression(size_t& i, int& labelCount) {
         i++; // 跳过"("
         vector<string> args;
         while (WordFinal.Token[i].TokenA != ")") {
-            if (WordFinal.Token[i].TokenB == 0) {
+            if (WordFinal.Token[i].TokenB!= 0) {
                 args.push_back(WordFinal.Token[i].TokenA);
                 i++;
                 if (WordFinal.Token[i].TokenA == ",") i++; // 跳过逗号
@@ -183,9 +223,7 @@ void parseExpression(size_t& i, int& labelCount) {
         i++; // 跳过")"
         i++; // 跳过";"
     }
-    else {
-        i++;
-    }
+
 }void parseExpression_for(size_t& i, int& labelCount) {
     string varName = WordFinal.Token[i].TokenA;
     i++;
@@ -216,6 +254,8 @@ void parseBlock(size_t& i, int& labelCount) {
     cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
 
     while (WordFinal.Token[i].TokenA != "}") {
+        cout << "BLOCK—WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+
         if (WordFinal.Token[i].TokenA == "int") {
             parseVariableDeclaration(i);
         } else if (WordFinal.Token[i].TokenA == "if") {
@@ -292,7 +332,25 @@ void parseVariableDeclaration(size_t& i) {
     } else {
         // 变量定义和表达式处理
         while (i < WordFinal.Token.size() && WordFinal.Token[i].TokenA != ";") {
-            if (WordFinal.Token[i].TokenB == 0) {
+            bool flag = false;
+            string tempStr = WordFinal.Token[i].TokenA;
+            cout<<"tempStr = "<<tempStr<<" start_flag = "<<flag<<endl;
+            if(!flag){
+                auto it = WordFinal.I.lower_bound (tempStr);
+                cout<<"(*it).first = "<<(*it).first <<endl;
+                if (it != WordFinal.I.end () && (*it).first == tempStr)
+                    flag = true;
+                cout<<"it_flag = "<<flag<<endl;
+            }
+            if(!flag){
+                auto it_1 = WordFinal.C1.lower_bound (tempStr);
+                cout<<"(*it_1).first = "<<(*it_1).first <<endl;
+                if (it_1 != WordFinal.C1.end () && (*it_1).first == tempStr)
+                    flag = true;
+                cout<<"it_1_flag = "<<flag<<endl;
+            }
+
+            if (flag) {
                 string varName = WordFinal.Token[i].TokenA;
                 addQuaternion(type, varName, "_", "_" );
                 i++;
@@ -325,11 +383,15 @@ void parseWhileStatement(size_t& i, int& labelCount) {
     i++;
     if (WordFinal.Token[i].TokenA == "(") {
         i++;
+        cout << "WHILE_WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         vector<token> expr;
+        cout<<"expr = ";
         while (WordFinal.Token[i].TokenA != ")") {
             expr.push_back(WordFinal.Token[i]);
+            cout<<WordFinal.Token[i].TokenA<<" ";
             i++;
         }
+        cout<<endl;;
         string startLabel = "L" + to_string(labelCount++);
         addQuaternion("LABEL", "_", "_", startLabel);
         vector<string> postfix = infixToPostfix(expr);
@@ -392,7 +454,7 @@ void parseForStatement(size_t& i, int& labelCount) {
     }
 }
 void parseMain(size_t& i, int& labelCount) {
-    cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+    cout << "MAIN—WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
     addQuaternion("main_start",  "main", "_","_");
     i++; // 跳过"main"
     i++; // 跳过"("
@@ -414,7 +476,7 @@ void generateQuaternions() {
     int labelCount = 1;
     while (i < WordFinal.Token.size()) {
         cout << "i = " << i << endl;
-        cout << "WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
+        cout << "GEN—WordFinal.Token[" << i << "].TokenA" << WordFinal.Token[i].TokenA << endl;
         if (WordFinal.Token[i].TokenA == "int" && WordFinal.Token[i + 1].TokenA == "main") {
             parseMain(i, labelCount);
         }
@@ -431,7 +493,6 @@ void generateQuaternions() {
         }
     }
 }
-
 void printQuaternions() {
     cout << "printQuaternions ()" << endl;
     for (const auto& q : Quaternion) {
@@ -445,9 +506,8 @@ void QUA2 () {
     for (int i = 0; i < WordFinal.Token.size (); i++) {
         token tempTK = WordFinal.Token[i];
         WordFinal.Token[i].TokenA = temp.revFind (tempTK);
-        cout << "(" << WordFinal.Token[i].TokenA << ", " << WordFinal.Token[i].TokenB << ")" << endl;
+        cout << "(" << WordFinal.Token[i].TokenA<< ", " << WordFinal.Token[i].TokenB << ")" << endl;
     }
-    cout << "printQuaternions ()" << endl;
     iniOP();
     string code = "int a = 5, b = 10;    b -= a + 2;    int arr[20]; arr[5] = b;";
     generateQuaternions();
