@@ -18,8 +18,7 @@ stmt -> if ( expr ) { prostmt } stmt
 stmt -> if ( expr ) { prostmt }
 stmt -> if ( expr ) { defstmt } stmt
 stmt -> if ( expr ) { defstmt }
-stmt -> stmt prostmt
-stmt -> stmt defstmt
+stmt -> if ( expr ) { stmt } stmt
 elifstmt -> empty | else if ( expr ) { stmt } elifstmt | else { stmt }
 prostmt -> while ( expr ) { stmt }
 prostmt -> empty | return expr ;
