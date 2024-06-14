@@ -258,22 +258,29 @@ struct Lexical {
                     }
                     else {
                         token tstr;
-                        tstr = Token.back();
-                        if (tstr.TokenB == 16) {
-                            K[tem] = ++NUMK;
-                            token Va;
-                            Va.TokenA = "K";
-                            Va.TokenB = K[tem];
-                            Token.push_back(Va);
-                            BreakDown[++NUMBreak] = tem;
+                        if (Token.empty()) {
+                            isI(tem);
                             tem.clear();
                             tem += Coden[++i];
                         }
                         else {
-                            isI(tem);
-                            BreakDown[++NUMBreak] = tem;
-                            tem.clear();
-                            tem += Coden[++i];
+                            tstr = Token.back();
+                            if (tstr.TokenB == 16) {
+                                K[tem] = ++NUMK;
+                                token Va;
+                                Va.TokenA = "K";
+                                Va.TokenB = K[tem];
+                                Token.push_back(Va);
+                                BreakDown[++NUMBreak] = tem;
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                            else {
+                                isI(tem);
+                                BreakDown[++NUMBreak] = tem;
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
                         }
                     }
                 }
@@ -290,22 +297,29 @@ struct Lexical {
                     }
                     else {
                         token tstr;
-                        tstr = Token.back();
-                        if (tstr.TokenB == 16) {
-                            K[tem] = ++NUMK;
-                            token Va;
-                            Va.TokenA = "K";
-                            Va.TokenB = K[tem];
-                            Token.push_back(Va);
-                            BreakDown[++NUMBreak] = tem;
+                        if (Token.empty()) {
+                            isI(tem);
                             tem.clear();
                             tem += Coden[++i];
                         }
                         else {
-                            isI(tem);
-                            BreakDown[++NUMBreak] = tem;
-                            tem.clear();
-                            tem += Coden[++i];
+                            tstr = Token.back();
+                            if (tstr.TokenB == 16) {
+                                K[tem] = ++NUMK;
+                                token Va;
+                                Va.TokenA = "K";
+                                Va.TokenB = K[tem];
+                                Token.push_back(Va);
+                                BreakDown[++NUMBreak] = tem;
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                            else {
+                                isI(tem);
+                                BreakDown[++NUMBreak] = tem;
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
                         }
                     }
                 }
