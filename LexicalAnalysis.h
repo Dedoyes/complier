@@ -459,6 +459,12 @@ struct Lexical {
                         if (Now.TokenA == "P") {
                             i++;
                         }
+                        else{
+                            if(isP(tem)){
+                                tem.clear();
+                                tem += Coden[++i];
+                            }
+                        }
                     }
                     else {
                         if (isP(tem)) {
