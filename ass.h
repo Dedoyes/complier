@@ -120,7 +120,7 @@ bool isImmediateOrConstant(const string& operand) {
 
 // 检查是否是无效标识符
 bool isInvalidIdentifier(const string& operand) {
-    static unordered_set<string> invalidIdentifiers = { "main", "int", "char", "FUNC", "function_begin", "function_end", "param", "call", "return", "JUMP_FALSE", "LABEL", "JUMP" };
+    static unordered_set<string> invalidIdentifiers = { "main", "int", "char", "FUNC", "function_begin", "function_end", "param", "call", "return", "JUMP_FALSE", "LABEL", "JUMP", "struct_begin", "struct_end" };
     return invalidIdentifiers.find(operand) != invalidIdentifiers.end();
 }
 
@@ -146,11 +146,23 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
     unordered_set<string> functionNames;
     unordered_set<string> operators = { "+", "-", "*", "/", "==", "!=", "<", "<=", ">", ">=" };
     unordered_map<string, string> arrayTypes; // 记录数组类型
+    unordered_map<string, vector<pair<string, string>>> structs; // 记录结构体定义
 
-    // 首先记录所有的函数名
+    // 首先记录所有的函数名和结构体定义
+    string currentStruct;
     for (const auto& quaternion : quaternions) {
         if (quaternion.op == "FUNC" || quaternion.op == "function_begin") {
             functionNames.insert(quaternion.result);
+        }
+        if (quaternion.op == "struct_begin") {
+            currentStruct = quaternion.result;
+            structs[currentStruct] = {};
+        }
+        if (quaternion.op == "struct_end") {
+            currentStruct = "";
+        }
+        if (currentStruct != "" && quaternion.op != "struct_begin" && quaternion.op != "struct_end") {
+            structs[currentStruct].push_back({ quaternion.op, quaternion.opt1 });
         }
     }
 
@@ -169,22 +181,26 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
         }
         else if (quaternion.op != "LABEL" && quaternion.op != "JUMP_FALSE" && quaternion.op != "JUMP" &&
             quaternion.op != "function_begin" && quaternion.op != "function_end" &&
-            quaternion.op != "param" && quaternion.op != "call" && quaternion.op != "return") {
-            if (quaternion.opt1 != "" && quaternion.opt1 != "_" && !isImmediateOrConstant(quaternion.opt1) && !isInvalidIdentifier(quaternion.opt1) &&
+            quaternion.op != "param" && quaternion.op != "call" && quaternion.op != "return" &&
+            quaternion.op != "struct_begin" && quaternion.op != "struct_end") {
+            if (quaternion.opt1 != "" && quaternion.opt1 != "_" && !isImmediateOrConstant(quaternion.opt1) &&
+                !isInvalidIdentifier(quaternion.opt1) &&
                 declaredVars.find(quaternion.opt1) == declaredVars.end() &&
                 functionNames.find(quaternion.opt1) == functionNames.end() &&
                 operators.find(quaternion.opt1) == operators.end()) {
                 cout << quaternion.opt1 << " DW 0" << endl;
                 declaredVars.insert(quaternion.opt1);
             }
-            if (quaternion.opt2 != "" && quaternion.opt2 != "_" && !isImmediateOrConstant(quaternion.opt2) && !isInvalidIdentifier(quaternion.opt2) &&
+            if (quaternion.opt2 != "" && quaternion.opt2 != "_" && !isImmediateOrConstant(quaternion.opt2) &&
+                !isInvalidIdentifier(quaternion.opt2) &&
                 declaredVars.find(quaternion.opt2) == declaredVars.end() &&
                 functionNames.find(quaternion.opt2) == functionNames.end() &&
                 operators.find(quaternion.opt2) == operators.end()) {
                 cout << quaternion.opt2 << " DW 0" << endl;
                 declaredVars.insert(quaternion.opt2);
             }
-            if (quaternion.result != "" && quaternion.result != "_" && !isImmediateOrConstant(quaternion.result) && !isInvalidIdentifier(quaternion.result) &&
+            if (quaternion.result != "" && quaternion.result != "_" && !isImmediateOrConstant(quaternion.result) &&
+                !isInvalidIdentifier(quaternion.result) &&
                 declaredVars.find(quaternion.result) == declaredVars.end() &&
                 functionNames.find(quaternion.result) == functionNames.end() &&
                 operators.find(quaternion.result) == operators.end()) {
@@ -192,7 +208,26 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
                 declaredVars.insert(quaternion.result);
             }
         }
+        else if (quaternion.op == "param" && declaredVars.find(quaternion.result) == declaredVars.end()) {
+            cout << quaternion.result << " DW 0" << endl;
+            declaredVars.insert(quaternion.result);
+        }
     }
+
+    // 声明结构体
+    for (const auto& structDef : structs) {
+        cout << structDef.first << " STRUC" << endl;
+        for (const auto& member : structDef.second) {
+            if (member.first == "int") {
+                cout << "  " << member.second << " DW 0" << endl;
+            }
+            else if (member.first == "char") {
+                cout << "  " << member.second << " DB 0" << endl;
+            }
+        }
+        cout << structDef.first << " ENDS" << endl;
+    }
+
     cout << "DSEG ENDS" << endl;
 
     // 生成代码段
@@ -246,6 +281,8 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
                     cout << "MOV " << reg2 << ", " << quaternion.opt2 << endl;
                 }
                 else {
+                    // 使用中间寄存器存储立即数
+                    reg2 = regAlloc.allocate("temp", varLiveness, i);
                     cout << "MOV " << reg2 << ", " << quaternion.opt2 << endl;
                 }
                 cout << "IMUL " << reg2 << endl;
@@ -406,9 +443,13 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
             // 函数调用逻辑
             cout << "CALL " << quaternion.opt1 << endl;
         }
-        else if (quaternion.op == "return") {
-            // 返回值处理逻辑
+        else if (quaternion.op == "return" && quaternion.result != "function") {
+            // 普通返回值处理逻辑
             cout << "MOV AX, " << quaternion.opt1 << endl;
+        }
+        else if (quaternion.op == "return" && quaternion.result == "function") {
+            // 递归调用函数处理逻辑
+            cout << "CALL " << quaternion.opt1 << endl;
         }
         else if (quaternion.op == "arg") {
             // 调用参数处理逻辑
@@ -430,49 +471,34 @@ void generateAssembly(const vector<Quaternion>& quaternions) {
 
 int main() {
     vector<Quaternion> quaternions = {
-        {"function_begin", "int", "_", "sum"},
-        {"param", "_", "_", "x"},
-        {"param", "_", "_", "y"},
-        {"return", "x", "_", "_"},
-        {"function_end", "_", "_", "sum"},
-        {"main_start", "main", "_", "_"},
-        {"int", "a", "_", "_"},
-        {"=", "5", "_", "a"},
-        {"int", "b", "_", "_"},
-        {"=", "10", "_", "b"},
-        {"+", "a", "2", "t1"},
-        {"-", "b", "t1", "b"},
-        {"ARRAY", "20", "int", "arr"},
-        {"ARRAY_ASSIGN", "arr", "5", "b"},
-        {"*", "a", "b", "t1"},
-        {"+", "t1", "10", "t2"},
-        {"=", "t2", "_", "ccc"},
-        {">", "a", "b", "t1"},
+        {"struct_begin", "", "", "myStruct"},
+        {"int", "i", "", ""},
+        {"int", "j", "", ""},
+        {"char", "c", "", ""},
+        {"struct_end", "", "", "myStruct"},
+        {"function_begin", "int", "_", "func"},
+        {"==", "a", "b", "t1"},
         {"JUMP_FALSE", "t1", "_", "L2"},
-        {"-", "a", "1", "t1"},
-        {"=", "t1", "_", "a"},
-        {"LABEL", "_", "_", "L2"},
-        {"LABEL", "_", "_", "L3"},
-        {"<", "a", "b", "t4"},
-        {"JUMP_FALSE", "t4", "_", "L5"},
-        {"=", "b", "_", "a"},
-        {"JUMP", "_", "_", "L3"},
-        {"LABEL", "_", "_", "L5"},
-        {"int", "i", "_", "_"},
-        {"=", "0", "_", "i"},
-        {"LABEL", "_", "_", "L6"},
-        {"<", "i", "10", "t8"},
-        {"JUMP_FALSE", "t8", "_", "L7"},
         {"+", "a", "1", "t1"},
         {"=", "t1", "_", "a"},
-        {"+", "i", "1", "t1"},
-        {"=", "t1", "_", "i"},
-        {"JUMP", "_", "_", "L6"},
+        {"JUMP", "_", "_", "L3"},
+        {"LABEL", "_", "_", "L2"},
+        {"==", "a", "b", "t4"},
+        {"JUMP_FALSE", "t4", "_", "L5"},
+        {"!=", "a", "b", "t6"},
+        {"JUMP_FALSE", "t6", "_", "L7"},
+        {"+", "a", "1", "t1"},
+        {"=", "t1", "_", "a"},
+        {"JUMP", "_", "_", "L8"},
         {"LABEL", "_", "_", "L7"},
-        {"arg", "a", "_", "x"},
-        {"arg", "b", "_", "y"},
-        {"call", "sum", "2", "_"},
-        {"main_end", "main", "_", "_"}
+        {"LABEL", "_", "_", "L8"},
+        {"+", "b", "1", "t1"},
+        {"=", "t1", "_", "b"},
+        {"JUMP", "_", "_", "L3"},
+        {"LABEL", "_", "_", "L5"},
+        {"LABEL", "_", "_", "L3"},
+        {"return", "func", "_", "function"},
+        {"function_end", "_", "_", "func"}
     };
 
     generateAssembly(quaternions);
